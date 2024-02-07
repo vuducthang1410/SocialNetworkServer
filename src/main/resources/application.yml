@@ -1,0 +1,23 @@
+spring:
+  jpa:
+    database: sql_server
+    hibernate:
+      ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+  datasource:
+    driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+    username: sa
+    url: jdbc:sqlserver://DESKTOP-UOQ7755:1433;database=DOANWEB;encrypt=false
+    password: vdt1410
+  security:
+    user:
+      name: vuducthang
+      password: 12345678
+      roles: admin
+server:
+  port: 9999
+
+
