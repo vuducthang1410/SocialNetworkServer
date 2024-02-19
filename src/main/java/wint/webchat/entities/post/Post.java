@@ -24,9 +24,7 @@ public class Post implements Serializable {
     @Basic
     @Column(name = "privacy_id", nullable = true, length = 10)
     private String privacyId;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userIdCreate")
-    private User userCreatePost;
+
     @Basic
     @Column(name = "is_delete", nullable = true)
     private Boolean isDelete;
@@ -40,7 +38,9 @@ public class Post implements Serializable {
     @Column(name = "type_post_id", nullable = true, length = 10)
     private String typePostId;
 
-
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "userIdCreate")
+    private User userCreatePost;
     @OneToMany(mappedBy = "postGroup")
     private List<PostGroup> postGroupList;
     @OneToMany(mappedBy = "postMedia")

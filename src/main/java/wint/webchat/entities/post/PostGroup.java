@@ -11,13 +11,13 @@ import wint.webchat.entities.group.Group;
 @Setter
 public class PostGroup {
     @Id
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_post",nullable = false
     ,foreignKey = @ForeignKey(name = "post_group_FK"))
     private Post postGroup;
 
     @Id
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_group", nullable = false,foreignKey =   @ForeignKey(name = "group_post_FK"))
     private Group idGroup;
 

@@ -21,11 +21,11 @@ public class Media implements Serializable {
     @Column
     private int typeMedia;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST})
+    @ManyToOne(cascade = {CascadeType.PERSIST},fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id")
     private Post postMedia;
 
-    @ManyToOne (cascade = {CascadeType.PERSIST})
+    @ManyToOne (cascade = {CascadeType.PERSIST},fetch = FetchType.LAZY)
     @JoinColumn(name = "comment_media")
     private Comment commentMedia;
 }

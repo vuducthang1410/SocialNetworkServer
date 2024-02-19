@@ -12,8 +12,6 @@ import wint.webchat.entities.post.Post;
 
 import java.io.Serializable;
 import java.sql.Date;
-import java.util.Collection;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -22,14 +20,13 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@EqualsAndHashCode
 @Table(name = "[User]")
-public class User  implements Serializable,UserDetails {
+public class User  implements Serializable {
     @Id
     @Column(name = "user_name", nullable = false, length = 50)
     private String userName;
     @Basic
-    @Column(name = "PasswordEncrypt", nullable = true, length = 30)
+    @Column(name = "PasswordEncrypt", nullable = true, length = 200)
     private String passwordEncrypt;
     @Basic
     @Column(name = "Email", nullable = true, length = 50)
@@ -69,9 +66,9 @@ public class User  implements Serializable,UserDetails {
     @Column(name = "gender")
     private Boolean genderValue;
 
-    @OneToMany(mappedBy = "userRole")
+    @OneToMany(mappedBy = "userRole",fetch = FetchType.EAGER)
     private Set<UserRole> userRoleList;
-    @OneToMany(mappedBy = "userCreatePost",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "userCreatePost")
     private Set<Post> listPost;
     @OneToMany(mappedBy = "userComment")
     private Set<Comment> listComment;
@@ -85,41 +82,19 @@ public class User  implements Serializable,UserDetails {
     private Set<Friend> listInvitationReceiver;
     @OneToMany(mappedBy = "memberConversation")
     private Set<MemberConversation>  listMemberConversation;
-    @OneToMany(mappedBy = "userSearch",fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "userSearch")
     private Set<Search> listSearch;
 
-    @Override
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return null;
-    }
-
-    @Override
-    public String getPassword() {
-        return null;
-    }
-
-    @Override
-    public String getUsername() {
-        return null;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return false;
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return false;
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return false;
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return false;
+    public User(String userName, String passwordEncrypt, String email) {
+        this.userName = userName;
+        this.passwordEncrypt = passwordEncrypt;
+        this.email = email;
+        this.isDelete = false;
+        this.accessFailedCount = 0;
+        this.emailConfirmed = false;
+        this.isOnline = true;
+        this.statusAccount = true;
+        this.describe="";
+        this.fullName="";
     }
 }

@@ -12,7 +12,6 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@EqualsAndHashCode
 @Entity
 public class Role implements Serializable {
     @Id

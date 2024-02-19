@@ -18,12 +18,12 @@ import java.io.Serializable;
 @Table(name = "Member_Group")
 public class MemberGroup implements Serializable {
     @Id
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User userMember;
 
     @Id
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "group_id")
     private Group groupMember;
 

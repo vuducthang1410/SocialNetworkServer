@@ -12,12 +12,12 @@ import java.sql.Timestamp;
 @Setter
 public class Friend implements Serializable {
     @Id
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id_sender",foreignKey = @ForeignKey(name = "user_sender_invitation_FK")
     )
     private User userInvitationSender;
     @Id
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id_receiver",foreignKey = @ForeignKey(name = "user_receiver_invitation_FK"))
     private User userInvitationReceiver;
     @Column

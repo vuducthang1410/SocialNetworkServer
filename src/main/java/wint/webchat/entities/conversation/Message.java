@@ -18,7 +18,7 @@ public class Message implements Serializable {
 
     @Column
     private Timestamp timeSend;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user_send")
     private MemberConversation memberConversation;
     @OneToOne(mappedBy = "messageText",cascade = CascadeType.ALL,fetch = FetchType.EAGER)

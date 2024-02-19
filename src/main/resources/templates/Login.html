@@ -1,14 +1,14 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
   <!-- bootstrap 4.3.1 -->
-  <link rel="stylesheet" href="css/vendor/bootstrap.min.css">
+  <link rel="stylesheet" th:href="@{/web/css/vendor/bootstrap.min.css}">
   <!-- styles -->
-  <link rel="stylesheet" href="css/styles.min.css">
+  <link rel="stylesheet" th:href="@{/web/css/styles.min.css}">
   <!-- favicon -->
-  <link rel="icon" href="img/favicon.ico">
+  <link rel="icon" th:href="@{/web/img/favicon.ico}">
   <title>Vikinger | Home</title>
 </head>
 <body>
@@ -70,7 +70,7 @@
       <!-- /FORM BOX TITLE -->
 
       <!-- FORM -->
-      <form class="form">
+      <form th:action="@{/login}" method="post" >
         <!-- FORM ROW -->
         <div class="form-row">
           <!-- FORM ITEM -->
@@ -78,7 +78,7 @@
             <!-- FORM INPUT -->
             <div class="form-input">
               <label for="login-username">Username or Email</label>
-              <input type="text" id="login-username" name="login_username">
+              <input type="text" id="login-username" name="username">
             </div>
             <!-- /FORM INPUT -->
           </div>
@@ -93,7 +93,7 @@
             <!-- FORM INPUT -->
             <div class="form-input">
               <label for="login-password">Password</label>
-              <input type="password" id="login-password" name="login_password">
+              <input type="password" id="login-password" name="password">
             </div>
             <!-- /FORM INPUT -->
           </div>
@@ -138,7 +138,7 @@
           <!-- FORM ITEM -->
           <div class="form-item">
             <!-- BUTTON -->
-            <button class="button medium secondary">Login to your Account!</button>
+            <button class="button medium secondary" type="submit">Login to your Account!</button>
             <!-- /BUTTON -->
           </div>
           <!-- /FORM ITEM -->
@@ -208,7 +208,7 @@
       <!-- /FORM BOX TITLE -->
 
       <!-- FORM -->
-      <form class="form">
+      <form th:action="@{/register}" method="post" class="form" th:object="${user}">
         <!-- FORM ROW -->
         <div class="form-row">
           <!-- FORM ITEM -->
@@ -216,7 +216,7 @@
             <!-- FORM INPUT -->
             <div class="form-input">
               <label for="register-email">Your Email</label>
-              <input type="text" id="register-email" name="register_email">
+              <input type="text" id="register-email" name="email">
             </div>
             <!-- /FORM INPUT -->
           </div>
@@ -231,7 +231,7 @@
             <!-- FORM INPUT -->
             <div class="form-input">
               <label for="register-username">Username</label>
-              <input type="text" id="register-username" name="register_username">
+              <input type="text" id="register-username" name="username">
             </div>
             <!-- /FORM INPUT -->
           </div>
@@ -246,7 +246,7 @@
             <!-- FORM INPUT -->
             <div class="form-input">
               <label for="register-password">Password</label>
-              <input type="password" id="register-password" name="register_password">
+              <input type="password" id="register-password" name="password">
             </div>
             <!-- /FORM INPUT -->
           </div>
@@ -298,7 +298,7 @@
           <!-- FORM ITEM -->
           <div class="form-item">
             <!-- BUTTON -->
-            <button class="button medium primary">Register Now!</button>
+            <button class="button medium primary" type="submit">Register Now!</button>
             <!-- /BUTTON -->
           </div>
           <!-- /FORM ITEM -->
@@ -318,14 +318,14 @@
 <!-- /LANDING -->
 
 <!-- app -->
-<script src="js/utils/app.js"></script>
+<script th:src="@{/web/js/utils/app.js}"></script>
 <!-- XM_Plugins -->
-<script src="js/vendor/xm_plugins.min.js"></script>
+<script th:src="@{/web/js/vendor/xm_plugins.min.js}"></script>
 <!-- form.utils -->
-<script src="js/form/form.utils.js"></script>
+<script th:src="@{/web/js/form/form.utils.js}"></script>
 <!-- landing.tabs -->
-<script src="js/landing/landing.tabs.js"></script>
+<script th:src="@{/web/js/landing/landing.tabs.js}"></script>
 <!-- SVG icons -->
-<script src="js/utils/svg-loader.js"></script>
+<script th:src="@{/web/js/utils/svg-loader.js}"></script>
 </body>
 </html>

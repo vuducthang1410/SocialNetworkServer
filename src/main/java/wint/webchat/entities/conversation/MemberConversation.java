@@ -17,11 +17,11 @@ public class MemberConversation {
     @SequenceGenerator(name = "member_conversation_generator",sequenceName = "member_conversation_seq")
     private Long id;
 
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.PERSIST,fetch = FetchType.LAZY)
     @JoinColumn(name = "id_conversation")
     private Conversation conversation;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn
     private User memberConversation;
 
