@@ -7,10 +7,14 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
+import wint.webchat.entities.user.Role;
 import wint.webchat.entities.user.User;
+import wint.webchat.entities.user.UserRole;
 import wint.webchat.repositories.IUserRepository;
 
 import java.util.List;
+import java.util.Set;
+
 @Repository
 public class UserRepositoryImpl implements IUserRepository {
     @PersistenceContext
@@ -18,7 +22,10 @@ public class UserRepositoryImpl implements IUserRepository {
     @Override
     @Transactional
     public ResponseEntity<String> add(User user) {
+        Role role=new Role("user","user");
+        UserRole userRole=new UserRole(role,user);
         entityManager.persist(user);
+        entityManager.persist(userRole);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 

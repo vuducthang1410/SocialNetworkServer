@@ -16,12 +16,10 @@ import java.util.Objects;
 public class UserRole implements Serializable {
     @Id
     @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User userRole;
-    @Id
-    @ManyToOne
     @JoinColumn(name = "role_id")
     private Role roleUser;
-
-
+    @Id
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "user_id")
+    private User userRole;
 }

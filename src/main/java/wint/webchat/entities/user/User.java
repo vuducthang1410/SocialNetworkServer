@@ -31,9 +31,8 @@ public class User  implements Serializable {
     @Basic
     @Column(name = "Email", nullable = true, length = 50)
     private String email;
-
     @Basic
-    @Column(name = "FullName", nullable = true, length = 100)
+    @Column(name = "FullName", nullable = true,columnDefinition = "nvarchar(255)")
     private String fullName;
     @Basic
     @Column(name = "UrlAvatar", nullable = true, length = 300)
@@ -45,7 +44,7 @@ public class User  implements Serializable {
     @Column(name = "DateOfBirth", nullable = true)
     private Date dateOfBirth;
     @Basic
-    @Column(name = "Describe", nullable = true, length = 300)
+    @Column(name = "Describe", nullable = true,columnDefinition = "nvarchar(300)")
     private String describe;
     @Basic
     @Column(name = "is_delete", nullable = true)
@@ -85,16 +84,17 @@ public class User  implements Serializable {
     @OneToMany(mappedBy = "userSearch")
     private Set<Search> listSearch;
 
-    public User(String userName, String passwordEncrypt, String email) {
+    public User(String userName, String passwordEncrypt, String fullName) {
         this.userName = userName;
         this.passwordEncrypt = passwordEncrypt;
-        this.email = email;
+        this.fullName= fullName;
         this.isDelete = false;
         this.accessFailedCount = 0;
         this.emailConfirmed = false;
         this.isOnline = true;
         this.statusAccount = true;
         this.describe="";
-        this.fullName="";
+        this.email="";
+        this.urlAvatar="https://drive.google.com/uc?id=1ZffstBnAUUI1LvpVRTHsYqgpkDmRDBLB";
     }
 }

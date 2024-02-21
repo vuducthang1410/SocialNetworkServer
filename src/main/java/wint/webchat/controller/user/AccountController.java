@@ -20,6 +20,7 @@ public class AccountController {
     public String login(){
         return "Login";
     }
+
     @GetMapping("/register")
     public String signIn(){
         return "Login";
@@ -27,6 +28,6 @@ public class AccountController {
     @PostMapping("/register")
     public String register(@ModelAttribute("user")UserDTO userDTO){
         userService.add(userDTO);
-        return "redirect:/web/newsfeed";
+        return "redirect:/login";
     }
 }

@@ -17,7 +17,11 @@ spring:
       name: vuducthang
       password: 12345678
       roles: admin
+  thymeleaf:
+
 server:
-  port: 9999
+  port: 8888
+
+
 
 

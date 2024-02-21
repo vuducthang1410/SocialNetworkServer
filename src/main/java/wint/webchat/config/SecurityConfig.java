@@ -43,6 +43,7 @@ public class SecurityConfig {
                                .successHandler(customSuccessHandler)
                                .permitAll())
                        .exceptionHandling(exh->exh.accessDeniedHandler(accessDeniedHandler));
+//        httpSecurity.authorizeHttpRequests(request->request.anyRequest().permitAll());
        return httpSecurity.build();
     }
     @Bean
