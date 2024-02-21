@@ -12,16 +12,13 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-@EqualsAndHashCode
 public class UserRole implements Serializable {
     @Id
-    @ManyToOne
-    @JoinColumn(name = "user_id")
-    private User userRole;
-    @Id
-    @ManyToOne
+    @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "role_id")
     private Role roleUser;
-
-
+    @Id
+    @ManyToOne(cascade = CascadeType.PERSIST)
+    @JoinColumn(name = "user_id")
+    private User userRole;
 }

@@ -3,15 +3,13 @@ package wint.webchat.security;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import wint.webchat.entities.user.User;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
 
 @AllArgsConstructor
-public class SecurityUserDetail implements UserDetails {
+public class CustomUserDetail implements UserDetails {
     private final User user;
 
     @Override
@@ -30,6 +28,16 @@ public class SecurityUserDetail implements UserDetails {
     @Override
     public String getUsername() {
         return user.getUserName();
+    }
+
+    public String getFullName(){
+        return user.getFullName();
+    }
+    public String getUrlAvatar(){
+        return user.getUrlAvatar();
+    }
+    public User getUser(){
+        return user;
     }
 
     @Override

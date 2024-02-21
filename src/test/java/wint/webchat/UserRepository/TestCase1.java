@@ -14,7 +14,7 @@
 //import org.springframework.http.ResponseEntity;
 //import org.springframework.test.context.junit4.SpringRunner;
 //import wint.webchat.entities.user.User;
-//import wint.webchat.repositories.Impl.IUserRepositoryJPA;
+//import wint.webchat.repositories.IUserRepositoryJPA;
 //import wint.webchat.repositories.IUserRepository;
 //
 //@RunWith(SpringRunner.class)

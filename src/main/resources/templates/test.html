@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload File Test</title>
+</head>
+<body>
+<h1>Upload File Test</h1>
+<form action="/upload/file" method="post" enctype="multipart/form-data">
+  <label for="fileUpload">Choose file:</label><br>
+  <input type="file" id="fileUpload" name="fileUpload"><br>
+  <label for="filePath">File Path:</label><br>
+  <input type="text" id="filePath" name="filePath"><br>
+  <label for="shared">Shared:</label><br>
+  <select id="shared" name="shared">
+    <option value="true">True</option>
+    <option value="false">False</option>
+  </select><br>
+  <button type="submit">Submit</button>
+</form>
+</body>
+</html>

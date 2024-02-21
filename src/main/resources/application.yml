@@ -2,7 +2,7 @@ spring:
   jpa:
     database: sql_server
     hibernate:
-      ddl-auto: validate
+      ddl-auto: create
     show-sql: true
     properties:
       hibernate:
@@ -17,7 +17,32 @@ spring:
       name: vuducthang
       password: 12345678
       roles: admin
+  thymeleaf:
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 100MB
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: vut70141@gmail.com
+    password: kcwocspqgjtorhya
+    protocol: smtp
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+            required: true
+
 server:
-  port: 9999
+  port: 8888
+
+jwt:
+  secret: SgTPK0QnzgiFKOPQX2WbQo54cd0lKoLN
+  accessTokenExpirationMs: 60000
+  refreshTokenExpirationMs: 86400000
+
 
 

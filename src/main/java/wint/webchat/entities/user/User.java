@@ -2,8 +2,6 @@ package wint.webchat.entities.user;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import wint.webchat.entities.conversation.MemberConversation;
 import wint.webchat.entities.group.MemberGroup;
 import wint.webchat.entities.post.Comment;
@@ -12,6 +10,7 @@ import wint.webchat.entities.post.Post;
 
 import java.io.Serializable;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Set;
 
 @Entity
@@ -23,6 +22,9 @@ import java.util.Set;
 @Table(name = "[User]")
 public class User  implements Serializable {
     @Id
+    @GeneratedValue(strategy = GenerationType.SEQUENCE,generator = "seq_idUser")
+    @SequenceGenerator(name = "seq_idUser",sequenceName = "seq_idUser",initialValue = 1000,allocationSize = 1)
+    private Long id;
     @Column(name = "user_name", nullable = false, length = 50)
     private String userName;
     @Basic
@@ -31,9 +33,8 @@ public class User  implements Serializable {
     @Basic
     @Column(name = "Email", nullable = true, length = 50)
     private String email;
-
     @Basic
-    @Column(name = "FullName", nullable = true, length = 100)
+    @Column(name = "FullName", nullable = true,columnDefinition = "nvarchar(255)")
     private String fullName;
     @Basic
     @Column(name = "UrlAvatar", nullable = true, length = 300)
@@ -45,7 +46,7 @@ public class User  implements Serializable {
     @Column(name = "DateOfBirth", nullable = true)
     private Date dateOfBirth;
     @Basic
-    @Column(name = "Describe", nullable = true, length = 300)
+    @Column(name = "Describe", nullable = true,columnDefinition = "nvarchar(300)")
     private String describe;
     @Basic
     @Column(name = "is_delete", nullable = true)
@@ -65,6 +66,12 @@ public class User  implements Serializable {
     @Basic
     @Column(name = "gender")
     private Boolean genderValue;
+    @Column(name = "url_image_cover",nullable = false,length = 255)
+    private String urlImgCover;
+    @Column(name = "refresh_token",length = 200)
+    private String refreshToken;
+    @Column(name="refreshTokenExpiration" )
+    private Timestamp refreshTokenExpiration;
 
     @OneToMany(mappedBy = "userRole",fetch = FetchType.EAGER)
     private Set<UserRole> userRoleList;
@@ -85,16 +92,20 @@ public class User  implements Serializable {
     @OneToMany(mappedBy = "userSearch")
     private Set<Search> listSearch;
 
-    public User(String userName, String passwordEncrypt, String email) {
+    public User(String userName, String passwordEncrypt, String fullName,String email) {
         this.userName = userName;
         this.passwordEncrypt = passwordEncrypt;
-        this.email = email;
+        this.fullName= fullName;
         this.isDelete = false;
         this.accessFailedCount = 0;
         this.emailConfirmed = false;
         this.isOnline = true;
         this.statusAccount = true;
         this.describe="";
-        this.fullName="";
+        this.email=email;
+        this.urlAvatar="https://lh3.google.com/u/0/d/1ZffstBnAUUI1LvpVRTHsYqgpkDmRDBLB";
+        this.urlImgCover="";
+        this.refreshToken="";
+        this.refreshTokenExpiration=new Timestamp(new java.util.Date(System.currentTimeMillis()).getTime());
     }
 }

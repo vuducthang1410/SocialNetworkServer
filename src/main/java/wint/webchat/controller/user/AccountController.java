@@ -1,32 +1,24 @@
 package wint.webchat.controller.user;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PostMapping;
-import wint.webchat.modelDTO.UserDTO;
+import lombok.RequiredArgsConstructor;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.*;
+import wint.webchat.modelDTO.ProfileDTO;
 import wint.webchat.service.IUserService;
 
-@Controller
+@RestController
+@RequiredArgsConstructor
+@RequestMapping("/api")
 public class AccountController {
-    private IUserService userService;
-
-    public AccountController(@Autowired IUserService userService) {
-        this.userService = userService;
+    private final IUserService userService;
+    @GetMapping({"/profile"})
+    public Object getProfile(Model model, @RequestParam("id")int id,@ModelAttribute("id")int id1){
+        ProfileDTO profileDTO=userService.getProfile(id);
+        return profileDTO;
+    }
+    @PostMapping("/update-profile")
+    public Object updateProfile(){
+        return null;
     }
 
-    @GetMapping({"/login"})
-    public String login(){
-        return "Login";
-    }
-    @GetMapping("/register")
-    public String signIn(){
-        return "Login";
-    }
-    @PostMapping("/register")
-    public String register(@ModelAttribute("user")UserDTO userDTO){
-        userService.add(userDTO);
-        return "redirect:/web/newsfeed";
-    }
 }

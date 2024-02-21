@@ -15,16 +15,17 @@ import java.util.Set;
 @Entity
 public class Role implements Serializable {
     @Id
-    @Column(name = "id_role", nullable = false, length = 50)
-    private String idRole;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idRole;
     @Basic
     @Column(name = "roleName", nullable = true, length = 100)
     private String roleName;
-    @Basic
-    @Column(name = "lever", nullable = true)
-    private Integer lever;
 
-    @OneToMany(mappedBy = "roleUser")
+    @OneToMany(mappedBy = "roleUser" )
     private Set<UserRole> listUserRole;
 
+    public Role(Long idRole, String roleName) {
+        this.idRole = idRole;
+        this.roleName = roleName;
+    }
 }

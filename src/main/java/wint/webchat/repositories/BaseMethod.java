@@ -9,5 +9,5 @@ public interface BaseMethod <T>{
     ResponseEntity<String> add(T t);
     ResponseEntity<String> delete(int id);
     ResponseEntity<String> update(T t);
-    List<Object> getList(int condition);
+    List<Object[]> getList(Long id,int startGetter,int amountGet);
 }

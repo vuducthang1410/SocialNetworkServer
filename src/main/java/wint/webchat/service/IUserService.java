@@ -1,10 +1,10 @@
 package wint.webchat.service;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.ResponseStatus;
-import wint.webchat.modelDTO.UserDTO;
+import wint.webchat.modelDTO.ProfileDTO;
+import wint.webchat.modelDTO.AuthSignUpDTO;
 
 public interface IUserService{
-    ResponseEntity<String> add(UserDTO userDTO);
+    ResponseEntity<String> add(AuthSignUpDTO authSignUpDTO);
+    ProfileDTO getProfile(int id);
 }

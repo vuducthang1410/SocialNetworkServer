@@ -5,17 +5,17 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import wint.webchat.repositories.Impl.IUserRepositoryJPA;
-import wint.webchat.security.SecurityUserDetail;
+import wint.webchat.repositories.IUserRepositoryJPA;
+import wint.webchat.security.CustomUserDetail;
 
 @Service
 @AllArgsConstructor
-public class CustomUserDetailService implements UserDetailsService {
+public class CustomUserDetailServiceImpl implements UserDetailsService {
     private final IUserRepositoryJPA userRepositoryJPA;
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         var user=userRepositoryJPA.findUsersByUserName(username);
-        return user.map(SecurityUserDetail::new)
+        return user.map(CustomUserDetail::new)
                 .orElseThrow(()->new UsernameNotFoundException("Not found user"));
     }
 }
