@@ -45,6 +45,7 @@ public class SecurityConfig {
                        )
                        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                        .exceptionHandling(exh->exh.accessDeniedHandler(accessDeniedHandler));
+//        httpSecurity.authorizeHttpRequests(request->request.anyRequest().permitAll());
        return httpSecurity.build();
     }
     @Bean
