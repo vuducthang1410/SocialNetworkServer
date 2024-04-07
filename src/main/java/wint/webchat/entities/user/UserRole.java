@@ -18,7 +18,7 @@ public class UserRole implements Serializable {
     @JoinColumn(name = "role_id")
     private Role roleUser;
     @Id
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.PERSIST,fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User userRole;
 }

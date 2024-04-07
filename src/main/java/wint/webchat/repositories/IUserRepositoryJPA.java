@@ -9,6 +9,7 @@ import wint.webchat.entities.user.User;
 import java.util.Optional;
 
 @Repository
+@Transactional
 public interface IUserRepositoryJPA extends JpaRepository<User, String> {
     @Query("""
                 select u from User u where u.userName = :username

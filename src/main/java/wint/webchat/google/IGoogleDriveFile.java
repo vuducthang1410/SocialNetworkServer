@@ -1,4 +1,4 @@
-package wint.webchat.service;
+package wint.webchat.google;
 
 import org.springframework.web.multipart.MultipartFile;
 import wint.webchat.modelDTO.GoogleDriveFileDTO;

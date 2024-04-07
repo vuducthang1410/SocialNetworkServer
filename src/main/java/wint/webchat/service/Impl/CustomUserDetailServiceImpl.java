@@ -16,6 +16,6 @@ public class CustomUserDetailServiceImpl implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         var user=userRepositoryJPA.findUsersByUserName(username);
         return user.map(CustomUserDetail::new)
-                .orElseThrow(()->new UsernameNotFoundException("Not found user"));
+                .orElseThrow(()->new UsernameNotFoundException("Username or password isn't correct"));
     }
 }

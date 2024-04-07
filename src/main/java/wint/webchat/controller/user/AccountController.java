@@ -14,7 +14,7 @@ public class AccountController {
     @GetMapping({"/profile"})
     public Object getProfile(Model model, @RequestParam("id")int id,@ModelAttribute("id")int id1){
         ProfileDTO profileDTO=userService.getProfile(id);
-        return profileDTO;
+        return "heheheh";
     }
     @PostMapping("/update-profile")
     public Object updateProfile(){

@@ -14,13 +14,13 @@ public class WebChatApplication {
         SpringApplication.run(WebChatApplication.class, args);
     }
 
-    @Bean
-    CommandLineRunner commandLineRunner(RoleService roleService) {
-        return args -> {
-            roleService.addRole(new Role(null,"ROLE_USER"));
-            roleService.addRole(new Role(null,"ROLE_ADMIN"));
-            roleService.addRole(new Role(null,"ROLE_MANAGER"));
-            roleService.addRole(new Role(null,"ROLE_SUPER_ADMIN"));
-        };
-    }
+//    @Bean
+//    CommandLineRunner commandLineRunner(RoleService roleService) {
+//        return args -> {
+//            roleService.addRole(new Role(null,"ROLE_USER"));
+//            roleService.addRole(new Role(null,"ROLE_ADMIN"));
+//            roleService.addRole(new Role(null,"ROLE_MANAGER"));
+//            roleService.addRole(new Role(null,"ROLE_SUPER_ADMIN"));
+//        };
+//    }
 }

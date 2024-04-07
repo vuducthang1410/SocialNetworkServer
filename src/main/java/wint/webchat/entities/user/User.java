@@ -72,6 +72,7 @@ public class User  implements Serializable {
     private String refreshToken;
     @Column(name="refreshTokenExpiration" )
     private Timestamp refreshTokenExpiration;
+    private Boolean isAccountNonLocked;
 
     @OneToMany(mappedBy = "userRole",fetch = FetchType.EAGER)
     private Set<UserRole> userRoleList;
@@ -92,7 +93,7 @@ public class User  implements Serializable {
     @OneToMany(mappedBy = "userSearch")
     private Set<Search> listSearch;
 
-    public User(String userName, String passwordEncrypt, String fullName,String email) {
+    public User(String userName, String passwordEncrypt, String fullName) {
         this.userName = userName;
         this.passwordEncrypt = passwordEncrypt;
         this.fullName= fullName;
@@ -102,10 +103,11 @@ public class User  implements Serializable {
         this.isOnline = true;
         this.statusAccount = true;
         this.describe="";
-        this.email=email;
+        this.email="email";
         this.urlAvatar="https://lh3.google.com/u/0/d/1ZffstBnAUUI1LvpVRTHsYqgpkDmRDBLB";
         this.urlImgCover="";
         this.refreshToken="";
         this.refreshTokenExpiration=new Timestamp(new java.util.Date(System.currentTimeMillis()).getTime());
+        this.isAccountNonLocked=true;
     }
 }

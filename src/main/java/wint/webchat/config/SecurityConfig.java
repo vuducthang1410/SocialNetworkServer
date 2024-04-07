@@ -12,6 +12,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -19,6 +20,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 import wint.webchat.security.CustomAccessDeniedHandler;
 import wint.webchat.security.CustomSuccessHandler;
 import wint.webchat.service.Impl.CustomUserDetailServiceImpl;
@@ -39,13 +41,23 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
                httpSecurity.csrf(AbstractHttpConfigurer::disable)
+//                       .cors(c->c.configurationSource(
+//                               r->{
+//                                   CorsConfiguration configuration=new CorsConfiguration();
+//                                   configuration.addAllowedOrigin("http://localhost:3000");
+//                                   configuration.addAllowedHeader("*");
+//                                   configuration.addAllowedMethod("*");
+//                                   return configuration;
+//                               }
+//                       ))
                        .authorizeHttpRequests(request->
                                request.requestMatchers("/auth/**").permitAll()
                                        .requestMatchers("/api/**").hasRole("USER")
+                                       .anyRequest().authenticated()
                        )
                        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                        .exceptionHandling(exh->exh.accessDeniedHandler(accessDeniedHandler));
-//        httpSecurity.authorizeHttpRequests(request->request.anyRequest().permitAll());
+
        return httpSecurity.build();
     }
     @Bean

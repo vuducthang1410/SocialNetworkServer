@@ -1,4 +1,4 @@
-package wint.webchat.googleDrive;
+package wint.webchat.google;
 
 import com.google.api.client.http.InputStreamContent;
 import com.google.api.services.drive.Drive;

@@ -6,6 +6,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.security.core.GrantedAuthority;
+
+import java.util.Collection;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
@@ -13,12 +16,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResponseData {
-    private int statusCode;
-    private String error;
+public class ResponseAuthData {
+   private String error;
     private String message;
     private String token;
     private String refreshToken;
-    private String expirationTime;
-
+    private Collection<GrantedAuthority> role;
+    private String accessToken;
 }

@@ -2,7 +2,7 @@ spring:
   jpa:
     database: sql_server
     hibernate:
-      ddl-auto: create
+      ddl-auto: validate
     show-sql: true
     properties:
       hibernate:
@@ -17,6 +17,12 @@ spring:
       name: vuducthang
       password: 12345678
       roles: admin
+    oauth2:
+      resource-server:
+        opaque-token:
+          client-id: 930582761358-3sl6m5nvakqs9bjqdoo8mt2q51iqkolu.apps.googleusercontent.com
+          client-secret: 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
+          introspection-uri: https://www.googleapis.com/
   thymeleaf:
   servlet:
     multipart:
@@ -35,14 +41,21 @@ spring:
           starttls:
             enable: true
             required: true
+  data:
+    redis:
+      host: localhost
+      port: 6379
 
 server:
   port: 8888
 
 jwt:
-  secret: SgTPK0QnzgiFKOPQX2WbQo54cd0lKoLN
+  secret: SgTPK0QnzgiFKOPQX2WbQo54cd0lKoLNuaguasyajsjhdgasdgyugaufubbewuegkHHGSGhajhafasffa
   accessTokenExpirationMs: 60000
   refreshTokenExpirationMs: 86400000
+
+frontend:
+  url: http://localhost:3000
 
 
 

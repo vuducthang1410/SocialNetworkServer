@@ -1,13 +1,11 @@
-package wint.webchat.service.Impl;
+package wint.webchat.google;
 
 import com.google.api.services.drive.model.File;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import wint.webchat.googleDrive.GoogleFileManager;
 import wint.webchat.modelDTO.ConvertByteToMB;
 import wint.webchat.modelDTO.GoogleDriveFileDTO;
-import wint.webchat.service.IGoogleDriveFile;
 
 import java.io.IOException;
 import java.io.OutputStream;
