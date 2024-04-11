@@ -51,7 +51,7 @@ server:
 
 jwt:
   secret: SgTPK0QnzgiFKOPQX2WbQo54cd0lKoLNuaguasyajsjhdgasdgyugaufubbewuegkHHGSGhajhafasffa
-  accessTokenExpirationMs: 60000
+  accessTokenExpirationMs: 600000
   refreshTokenExpirationMs: 86400000
 
 frontend:

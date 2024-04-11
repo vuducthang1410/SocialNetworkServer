@@ -1,6 +1,7 @@
 package wint.webchat.service.Impl;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -12,10 +13,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wint.webchat.entities.user.Role;
 import wint.webchat.entities.user.User;
+import wint.webchat.enums.RedisKeys;
 import wint.webchat.google.GoogleAuth;
 import wint.webchat.modelDTO.AuthLoginDTO;
 import wint.webchat.modelDTO.AuthSignUpDTO;
 import wint.webchat.modelDTO.ResponseAuthData;
+import wint.webchat.redis.RedisService;
 import wint.webchat.repositories.IRoleRepository;
 import wint.webchat.repositories.IUserRepositoryJPA;
 import wint.webchat.repositories.Impl.UserRoleRepositoryImpl;
@@ -39,7 +42,8 @@ public class AuthService {
     private final UserRoleRepositoryImpl userRoleRepository;
     private final IRoleRepository roleRepository;
     private final GoogleAuth googleAuth;
-
+    private final RedisService redisService;
+    private final RedisTemplate<String,Object> redisTemplate;
     public ResponseEntity<Object> signIn(AuthLoginDTO authLoginDTO) {
         try {
             var userDb = userRepositoryJPA.findUsersByUserName(authLoginDTO.getUsername());
@@ -48,9 +52,16 @@ public class AuthService {
                 CustomUserDetail userDetail = userDb.map(CustomUserDetail::new).orElseThrow();
                 var accessToken = jwtService.generateAccessToken(new HashMap<>(), userDetail);
                 var refreshToken = jwtService.generateRefreshToken(userDetail.getUsername());
+                var user=userDetail.getUser();
+                redisTemplate.convertAndSend("auth-channel", refreshToken);
+//                redisService.setToken(user.getId().toString(),accessToken, RedisKeys.ACCESS_TOKEN.getValueRedisKey());
+//                redisService.setToken(user.getId().toString(),refreshToken,RedisKeys.REFRESH_TOKEN.getValueRedisKey());
                 ResponseAuthData responseAuthData = ResponseAuthData.builder()
+                        .userId(user.getId())
+                        .urlAvatar(user.getUrlAvatar())
+                        .fullName(user.getFullName())
                         .refreshToken(refreshToken)
-                        .token(accessToken)
+                        .accessToken(accessToken)
                         .role((Collection<GrantedAuthority>) userDetail.getAuthorities())
                         .message("Login success")
                         .build();

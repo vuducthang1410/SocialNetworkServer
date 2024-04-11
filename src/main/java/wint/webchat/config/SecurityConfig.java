@@ -53,6 +53,7 @@ public class SecurityConfig {
                        .authorizeHttpRequests(request->
                                request.requestMatchers("/auth/**").permitAll()
                                        .requestMatchers("/api/**").hasRole("USER")
+                                       .requestMatchers("/test/**").permitAll()
                                        .anyRequest().authenticated()
                        )
                        .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)

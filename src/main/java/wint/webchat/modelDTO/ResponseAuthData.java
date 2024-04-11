@@ -17,9 +17,10 @@ import java.util.Collection;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ResponseAuthData {
-   private String error;
+    private Long userId;
+    private String fullName;
+    private String urlAvatar;
     private String message;
-    private String token;
     private String refreshToken;
     private Collection<GrantedAuthority> role;
     private String accessToken;

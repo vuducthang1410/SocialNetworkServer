@@ -68,10 +68,6 @@ public class User  implements Serializable {
     private Boolean genderValue;
     @Column(name = "url_image_cover",nullable = false,length = 255)
     private String urlImgCover;
-    @Column(name = "refresh_token",length = 200)
-    private String refreshToken;
-    @Column(name="refreshTokenExpiration" )
-    private Timestamp refreshTokenExpiration;
     private Boolean isAccountNonLocked;
 
     @OneToMany(mappedBy = "userRole",fetch = FetchType.EAGER)
@@ -106,8 +102,6 @@ public class User  implements Serializable {
         this.email="email";
         this.urlAvatar="https://lh3.google.com/u/0/d/1ZffstBnAUUI1LvpVRTHsYqgpkDmRDBLB";
         this.urlImgCover="";
-        this.refreshToken="";
-        this.refreshTokenExpiration=new Timestamp(new java.util.Date(System.currentTimeMillis()).getTime());
         this.isAccountNonLocked=true;
     }
 }

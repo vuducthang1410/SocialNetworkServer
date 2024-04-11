@@ -6,12 +6,13 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import wint.webchat.security.CustomUserDetail;
 
 import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
+import java.util.*;
 import java.util.function.Function;
 
 
@@ -38,27 +39,35 @@ public class JwtServiceImpl {
         return Jwts.builder()
                 .claims(claims)
                 .subject(customUserDetail.getUsername())
-                .claim("role", customUserDetail.getAuthorities())
+                .claim("role",customUserDetail.getAuthorities())
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + accessTokenExpirationMs))
                 .signWith(SignatureAlgorithm.HS256, getSignInKey())
                 .compact();
     }
-
     public String getUsernameFromToken(String token) {
         return extractClaims(token, Claims::getSubject);
+    }
+    public Collection<GrantedAuthority> getAuthoritiesFromToken(String token) {
+        Claims claims = extractAllClaims(token);
+        List<Map<String, String>> roles = (List<Map<String, String>>) claims.get("role");
+        List<GrantedAuthority> authorities = new ArrayList<>();
+        for (Map<String, String> role : roles) {
+            authorities.add(new SimpleGrantedAuthority(role.get("authority")));
+        }
+        return authorities;
     }
 
     public <T> T extractClaims(String token, Function<Claims, T> claimsTFunction) {
         Claims claims = extractAllClaims(token);
         return claimsTFunction.apply(claims);
     }
-    public boolean isTokenValid(String token, CustomUserDetail customUserDetail) {
+    public boolean isTokenValidUserName(String token, CustomUserDetail customUserDetail) {
         final String username = getUsernameFromToken(token);
-        return (username.equals(customUserDetail.getUsername())) && !isTokenExpiration(token);
+        return (username.equals(customUserDetail.getUsername())) ;
     }
 
-    private boolean isTokenExpiration(String token) {
+    public boolean isTokenExpiration(String token) {
         return extractClaims(token, Claims::getExpiration).before(new Date());
     }
 
