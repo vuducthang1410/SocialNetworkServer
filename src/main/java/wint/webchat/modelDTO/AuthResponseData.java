@@ -16,7 +16,7 @@ import java.util.Collection;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ResponseAuthData {
+public class AuthResponseData {
     private Long userId;
     private String fullName;
     private String urlAvatar;

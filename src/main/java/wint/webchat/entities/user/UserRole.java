@@ -14,11 +14,11 @@ import java.util.Objects;
 @ToString
 public class UserRole implements Serializable {
     @Id
-    @ManyToOne(cascade = CascadeType.PERSIST)
+    @ManyToOne(cascade = CascadeType.PERSIST,fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id")
     private Role roleUser;
     @Id
-    @ManyToOne(cascade = CascadeType.PERSIST,fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User userRole;
 }

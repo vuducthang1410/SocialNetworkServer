@@ -18,10 +18,7 @@ import wint.webchat.entities.user.Role;
 import wint.webchat.entities.user.User;
 import wint.webchat.enums.RedisKeys;
 import wint.webchat.google.GoogleAuth;
-import wint.webchat.modelDTO.AuthLoginDTO;
-import wint.webchat.modelDTO.AuthRedisDTO;
-import wint.webchat.modelDTO.AuthSignUpDTO;
-import wint.webchat.modelDTO.ResponseAuthData;
+import wint.webchat.modelDTO.*;
 import wint.webchat.redis.AuthRedis.AuthConsumer;
 import wint.webchat.redis.AuthRedis.AuthProducer;
 import wint.webchat.repositories.IRoleRepository;
@@ -37,7 +34,6 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class AuthService {
     private final JwtServiceImpl jwtService;
@@ -49,13 +45,14 @@ public class AuthService {
     private final GoogleAuth googleAuth;
     private final AuthConsumer authConsumer;
     private final AuthProducer authProducer;
-
+    private int x=10;
     public ResponseEntity<Object> signIn(AuthLoginDTO authLoginDTO, HttpServletResponse response) {
         try {
             var userDb = userRepositoryJPA.findUsersByUserName(authLoginDTO.getUsername());
             if (userDb.isPresent()) {
-                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authLoginDTO.getUsername(), authLoginDTO.getPassword()));
+//                authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(authLoginDTO.getUsername(), authLoginDTO.getPassword()));
                 CustomUserDetail userDetail = userDb.map(CustomUserDetail::new).orElseThrow();
+                userDb.get().getUserRoleList().forEach(e-> System.out.println(e.getRoleUser().getRoleName()));
                 return ResponseEntity.status(HttpStatus.OK).body(getResponseAuthData(userDetail, response));
             }
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Not found user from username");
@@ -87,9 +84,9 @@ public class AuthService {
             jwtService.isTokenExpiration(refreshToken);
             String username = jwtService.getUsernameFromToken(refreshToken);
             if (authProducer.isTokenContainInRedis(username, refreshToken, accessToken)) {
-                Collection<GrantedAuthority> authorities=authProducer.getAuthorities(username,refreshToken,accessToken);
+                Collection<GrantedAuthority> authorities = authProducer.getAuthorities(username, refreshToken, accessToken);
                 String newAccessToken = jwtService.generateAccessToken(new HashMap<>(), username, authorities);
-                addMessageToAuthQueue(username, accessToken, refreshToken,authorities);
+                addMessageToAuthQueue(username, accessToken, refreshToken, authorities);
                 return ResponseEntity.ok(newAccessToken);
             } else
                 throw new Exception();
@@ -102,10 +99,23 @@ public class AuthService {
         }
     }
 
-    public ResponseEntity<ResponseAuthData> signInWithGoogle(String authCode) {
+    public ResponseEntity<Object> signInWithGoogle(String authCode, HttpServletResponse response) {
+        System.out.println(x++);
         try {
-            ResponseAuthData responseAuthData = googleAuth.signIn(authCode);
-            return ResponseEntity.ok(responseAuthData);
+            AuthGoogleResponseDTO responseAuthData = googleAuth.signIn(authCode);
+            UserInfoGoogleResponseDTO userInfo = googleAuth.extractTokenGoogle(responseAuthData.getAccessToken());
+            Optional<User> userFromDb=userRepositoryJPA.findUsersByUserName(userInfo.getEmail());
+            if(userFromDb.isEmpty()){
+                User userNew=new User(userInfo.getEmail(), passwordEncoder.encode(""),
+                        userInfo.getName(),userInfo.getEmail(),userInfo.getPicture());
+                List<Role> list = roleRepository.findByRoleName("ROLE_USER").stream().collect(Collectors.toList());
+                if (list.isEmpty())
+                    return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Server error");
+                userRoleRepository.addRoleForUser(userNew, list);
+                userFromDb= Optional.of(userNew);
+            }
+            CustomUserDetail userDetail = userFromDb.map(CustomUserDetail::new).orElseThrow();
+            return ResponseEntity.status(HttpStatus.OK).body(getResponseAuthData(userDetail, response));
         } catch (IOException e) {
             e.printStackTrace();
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -124,17 +134,17 @@ public class AuthService {
         }
     }
 
-    private ResponseAuthData getResponseAuthData(CustomUserDetail userDetail, HttpServletResponse response) {
+    private AuthResponseData getResponseAuthData(CustomUserDetail userDetail, HttpServletResponse response) {
         var accessToken = jwtService.generateAccessToken(new HashMap<>(), userDetail.getUsername(), (Collection<GrantedAuthority>) userDetail.getAuthorities());
         var refreshToken = jwtService.generateRefreshToken(userDetail.getUsername());
         Cookie cookie = new Cookie(RedisKeys.REFRESH_TOKEN.getValueRedisKey(), refreshToken);
         cookie.setHttpOnly(true);
         response.addCookie(cookie);
-        System.out.println("refresh token"+refreshToken);
-        System.out.println("access token"+accessToken);
+        System.out.println("refresh token" + refreshToken);
+        System.out.println("access token" + accessToken);
         var user = userDetail.getUser();
         addMessageToAuthQueue(user.getUserName(), accessToken, refreshToken, (Collection<GrantedAuthority>) userDetail.getAuthorities());
-        ResponseAuthData responseAuthData = ResponseAuthData.builder()
+        AuthResponseData authResponseData = AuthResponseData.builder()
                 .userId(user.getId())
                 .urlAvatar(user.getUrlAvatar())
                 .fullName(user.getFullName())
@@ -142,7 +152,7 @@ public class AuthService {
                 .role((Collection<GrantedAuthority>) userDetail.getAuthorities())
                 .message("Login success")
                 .build();
-        return responseAuthData;
+        return authResponseData;
     }
 
     private void addMessageToAuthQueue(String username,

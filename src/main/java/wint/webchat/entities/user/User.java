@@ -70,7 +70,7 @@ public class User  implements Serializable {
     private String urlImgCover;
     private Boolean isAccountNonLocked;
 
-    @OneToMany(mappedBy = "userRole",fetch = FetchType.EAGER)
+    @OneToMany(mappedBy = "userRole",fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     private Set<UserRole> userRoleList;
     @OneToMany(mappedBy = "userCreatePost")
     private Set<Post> listPost;
@@ -101,6 +101,22 @@ public class User  implements Serializable {
         this.describe="";
         this.email="email";
         this.urlAvatar="https://lh3.google.com/u/0/d/1ZffstBnAUUI1LvpVRTHsYqgpkDmRDBLB";
+        this.urlImgCover="";
+        this.isAccountNonLocked=true;
+    }
+    public User(String userName, String passwordEncrypt, String fullName,
+                String email,String urlAvatar) {
+        this.userName = userName;
+        this.passwordEncrypt = passwordEncrypt;
+        this.fullName= fullName;
+        this.isDelete = false;
+        this.accessFailedCount = 0;
+        this.emailConfirmed = false;
+        this.isOnline = true;
+        this.statusAccount = true;
+        this.describe="";
+        this.email=email;
+        this.urlAvatar=urlAvatar;
         this.urlImgCover="";
         this.isAccountNonLocked=true;
     }

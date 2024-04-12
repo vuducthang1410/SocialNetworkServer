@@ -6,6 +6,7 @@ import com.google.api.client.googleapis.auth.oauth2.GoogleTokenResponse;
 import com.google.api.client.http.GenericUrl;
 import com.google.api.client.http.HttpRequest;
 import com.google.api.client.http.HttpRequestFactory;
+import com.google.api.client.http.HttpResponse;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.JsonObjectParser;
@@ -14,7 +15,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import wint.webchat.modelDTO.ResponseAuthData;
+import wint.webchat.modelDTO.AuthGoogleResponseDTO;
+import wint.webchat.modelDTO.AuthResponseData;
+import wint.webchat.modelDTO.UserInfoGoogleResponseDTO;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -41,10 +44,10 @@ public class GoogleAuth {
                 .build();
         return url;
     }
-    public ResponseAuthData signIn(String authCode) throws IOException {
+    public AuthGoogleResponseDTO signIn(String authCode) throws IOException {
         GoogleAuthorizationCodeFlow flow = new GoogleAuthorizationCodeFlow.Builder(
                 new NetHttpTransport(),
-                JacksonFactory.getDefaultInstance(),
+                jsonFactory,
                 CLIENT_ID,
                 CLIENT_SECRET,
                 Arrays.asList("https://www.googleapis.com/auth/userinfo.profile",
@@ -53,20 +56,28 @@ public class GoogleAuth {
         GoogleTokenResponse tokenResponse = flow.newTokenRequest(authCode)
                 .setRedirectUri(URL_FRONTEND)
                 .execute();
-        new ResponseAuthData();
-        return ResponseAuthData.builder()
-                .accessToken(tokenResponse.getAccessToken()).build();
+        return AuthGoogleResponseDTO.builder()
+                .accessToken(tokenResponse.getAccessToken())
+                .refreshToken(tokenResponse.getRefreshToken())
+                .build();
     }
-    public ResponseEntity<ResponseAuthData> extractTokenGoogle(String token){
+    public UserInfoGoogleResponseDTO extractTokenGoogle(String token){
         try {
             HttpRequestFactory requestFactory = new NetHttpTransport().createRequestFactory();
             GenericUrl url = new GenericUrl("https://www.googleapis.com/oauth2/v3/userinfo");
             HttpRequest request = requestFactory.buildGetRequest(url);
             request.getHeaders().setAuthorization("Bearer "+token);
             request.setParser(new JsonObjectParser(jsonFactory));
+            HttpResponse response = request.execute();
+            if (response.isSuccessStatusCode()) {
+                UserInfoGoogleResponseDTO userInfo = response.parseAs(UserInfoGoogleResponseDTO.class);
+                return userInfo;
+            } else {
+                System.err.println("Error retrieving user info: " + response.getStatusCode() + " " + response.getStatusMessage());
+                throw new Exception();
+            }
+        }catch (Exception ioe){
             return null;
-        }catch (IOException ioe){
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 }

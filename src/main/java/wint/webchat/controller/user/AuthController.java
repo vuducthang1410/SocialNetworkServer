@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import wint.webchat.enums.RedisKeys;
 import wint.webchat.modelDTO.AuthLoginDTO;
 import wint.webchat.modelDTO.AuthSignUpDTO;
-import wint.webchat.modelDTO.ResponseAuthData;
+import wint.webchat.modelDTO.AuthResponseData;
 import wint.webchat.service.Impl.AuthService;
 import wint.webchat.service.Impl.RoleService;
 
@@ -39,9 +39,9 @@ public class AuthController {
     }
 
     @PostMapping("/signIn")
-    public ResponseEntity<Object> signUp(@RequestBody AuthLoginDTO signUpRequest,
+    public ResponseEntity<Object> signIn(@RequestBody AuthLoginDTO signUpRequest,
                                          HttpServletResponse response) {
-        return ResponseEntity.ok(authService.signIn(signUpRequest, response));
+        return authService.signIn(signUpRequest, response);
     }
 
     @PostMapping("/refresh-token")
@@ -76,9 +76,9 @@ public class AuthController {
     }
 
     @PostMapping("/sign-in-with-google")
-    public ResponseEntity<ResponseAuthData> signInWithGoogle(@RequestParam(value = "code") String code) {
-        System.out.println(code);
-        return null;
+    public ResponseEntity<Object> signInWithGoogle(@RequestParam(value = "code") String code,
+                                                             HttpServletResponse response) {
+        return authService.signInWithGoogle(code,response);
     }
 
     @GetMapping("/url-login/{type}")
