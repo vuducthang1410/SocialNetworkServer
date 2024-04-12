@@ -21,7 +21,6 @@ public class ResponseAuthData {
     private String fullName;
     private String urlAvatar;
     private String message;
-    private String refreshToken;
     private Collection<GrantedAuthority> role;
     private String accessToken;
 }

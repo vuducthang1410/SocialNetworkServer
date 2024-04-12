@@ -55,7 +55,6 @@ public class GoogleAuth {
                 .execute();
         new ResponseAuthData();
         return ResponseAuthData.builder()
-                .refreshToken(tokenResponse.getRefreshToken())
                 .accessToken(tokenResponse.getAccessToken()).build();
     }
     public ResponseEntity<ResponseAuthData> extractTokenGoogle(String token){

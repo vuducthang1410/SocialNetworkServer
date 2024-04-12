@@ -35,11 +35,12 @@ public class JwtServiceImpl {
                 .compact();
     }
 
-    public String generateAccessToken(HashMap<String, Object> claims, CustomUserDetail customUserDetail) {
+    public String generateAccessToken(HashMap<String, Object> claims, String username,
+                                      Collection<GrantedAuthority> role) {
         return Jwts.builder()
                 .claims(claims)
-                .subject(customUserDetail.getUsername())
-                .claim("role",customUserDetail.getAuthorities())
+                .subject(username)
+                .claim("role",role)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + accessTokenExpirationMs))
                 .signWith(SignatureAlgorithm.HS256, getSignInKey())
@@ -58,7 +59,7 @@ public class JwtServiceImpl {
         return authorities;
     }
 
-    public <T> T extractClaims(String token, Function<Claims, T> claimsTFunction) {
+    private <T> T extractClaims(String token, Function<Claims, T> claimsTFunction) {
         Claims claims = extractAllClaims(token);
         return claimsTFunction.apply(claims);
     }

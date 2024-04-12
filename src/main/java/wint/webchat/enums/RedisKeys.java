@@ -6,6 +6,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum RedisKeys {
+    TOKEN("TOKEN"),
     ACCESS_TOKEN("ACCESS_TOKEN"),
     REFRESH_TOKEN("REFRESH_TOKEN"),
     EMAIL_TOKEN("EMAIL_TOKEN"),

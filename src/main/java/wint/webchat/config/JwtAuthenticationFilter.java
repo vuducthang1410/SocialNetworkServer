@@ -7,7 +7,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
@@ -15,18 +14,18 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import wint.webchat.security.CustomUserDetail;
+import wint.webchat.redis.AuthRedis.AuthProducer;
 import wint.webchat.service.Impl.CustomUserDetailServiceImpl;
 import wint.webchat.service.Impl.JwtServiceImpl;
 
 import java.io.IOException;
-import java.util.Optional;
 
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtServiceImpl jwtServiceImpl;
     private final CustomUserDetailServiceImpl userDetailService;
+    private final AuthProducer authProducer;
 
     @Override
     protected void doFilterInternal(@NonNull HttpServletRequest request,
@@ -59,5 +58,4 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         context.setAuthentication(authToken);
         SecurityContextHolder.setContext(context);
     }
-
 }
