@@ -2,7 +2,7 @@ spring:
   jpa:
     database: sql_server
     hibernate:
-      ddl-auto: validate
+      ddl-auto: update
     show-sql: true
     properties:
       hibernate:
@@ -56,6 +56,14 @@ jwt:
 
 frontend:
   url: http://localhost:3000
+  url-reset-password: http://localhost:3000/reset-password
+
+#logging:
+#  level:
+#    org.springframework.security: DEBUG
+#    org.springframework.web.socket: DEBUG
+#    org.springframework.messaging: DEBUG
+#
 
 
 

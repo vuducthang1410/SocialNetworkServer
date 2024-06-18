@@ -13,19 +13,15 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.server.resource.introspection.OpaqueTokenIntrospector;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.web.cors.CorsConfiguration;
-import org.springframework.web.reactive.function.client.WebClient;
 import wint.webchat.security.CustomAccessDeniedHandler;
-import wint.webchat.security.CustomSuccessHandler;
 import wint.webchat.service.Impl.CustomUserDetailServiceImpl;
 
 @Configuration
@@ -48,13 +44,11 @@ public class SecurityConfig {
                                request.requestMatchers("/auth/**").permitAll()
                                        .requestMatchers("/api/**").hasRole("USER")
                                        .requestMatchers("/test/**").permitAll()
+                                       .requestMatchers("/ws/**").permitAll()
                                        .anyRequest().authenticated()
                        )
-                       .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                       .exceptionHandling(exh->exh.accessDeniedHandler(accessDeniedHandler)
-                               )
-                       .oauth2ResourceServer(c -> c.opaqueToken(Customizer.withDefaults()));
-
+                       .sessionManagement(sessionConfigurer -> sessionConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                       .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
        return httpSecurity.build();
     }
     @Bean

@@ -10,7 +10,6 @@ import wint.webchat.entities.post.Post;
 
 import java.io.Serializable;
 import java.sql.Date;
-import java.sql.Timestamp;
 import java.util.Set;
 
 @Entity
@@ -69,6 +68,7 @@ public class User  implements Serializable {
     @Column(name = "url_image_cover",nullable = false,length = 255)
     private String urlImgCover;
     private Boolean isAccountNonLocked;
+    private String provide;
 
     @OneToMany(mappedBy = "userRole",fetch = FetchType.EAGER,cascade = CascadeType.ALL)
     private Set<UserRole> userRoleList;
@@ -89,7 +89,7 @@ public class User  implements Serializable {
     @OneToMany(mappedBy = "userSearch")
     private Set<Search> listSearch;
 
-    public User(String userName, String passwordEncrypt, String fullName) {
+    public User(String userName, String passwordEncrypt, String fullName,String provide) {
         this.userName = userName;
         this.passwordEncrypt = passwordEncrypt;
         this.fullName= fullName;
@@ -103,9 +103,10 @@ public class User  implements Serializable {
         this.urlAvatar="https://lh3.google.com/u/0/d/1ZffstBnAUUI1LvpVRTHsYqgpkDmRDBLB";
         this.urlImgCover="";
         this.isAccountNonLocked=true;
+        this.provide=provide;
     }
     public User(String userName, String passwordEncrypt, String fullName,
-                String email,String urlAvatar) {
+                String email,String urlAvatar,String provide) {
         this.userName = userName;
         this.passwordEncrypt = passwordEncrypt;
         this.fullName= fullName;
@@ -119,5 +120,6 @@ public class User  implements Serializable {
         this.urlAvatar=urlAvatar;
         this.urlImgCover="";
         this.isAccountNonLocked=true;
+        this.provide=provide;
     }
 }

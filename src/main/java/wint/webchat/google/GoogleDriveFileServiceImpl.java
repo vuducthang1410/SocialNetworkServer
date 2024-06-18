@@ -4,7 +4,7 @@ import com.google.api.services.drive.model.File;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import wint.webchat.modelDTO.ConvertByteToMB;
+import wint.webchat.util.ConvertByteToMB;
 import wint.webchat.modelDTO.GoogleDriveFileDTO;
 
 import java.io.IOException;

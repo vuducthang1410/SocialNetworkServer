@@ -14,7 +14,6 @@ public class WebChatApplication {
     public static void main(String[] args) {
         SpringApplication.run(WebChatApplication.class, args);
     }
-
 //    @Bean
 //    CommandLineRunner commandLineRunner(RoleService roleService) {
 //        return args -> {

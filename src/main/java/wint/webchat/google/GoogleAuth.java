@@ -12,12 +12,9 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.JsonObjectParser;
 import com.google.api.client.json.jackson2.JacksonFactory;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import wint.webchat.modelDTO.AuthGoogleResponseDTO;
-import wint.webchat.modelDTO.AuthResponseData;
-import wint.webchat.modelDTO.UserInfoGoogleResponseDTO;
+import wint.webchat.modelDTO.reponse.AuthGoogleResponseDTO;
+import wint.webchat.modelDTO.reponse.UserInfoGoogleResponseDTO;
 
 import java.io.IOException;
 import java.util.Arrays;

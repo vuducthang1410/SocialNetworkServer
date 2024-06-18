@@ -6,9 +6,9 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.listener.RedisMessageListenerContainer;
-import wint.webchat.enums.ChannelRedis;
-import wint.webchat.redis.AuthRedis.AuthListener;
-import wint.webchat.redis.MailListener;
+import wint.webchat.common.ChannelRedis;
+import wint.webchat.event.authEvent.AuthListener;
+import wint.webchat.event.mailEvent.MailListener;
 
 @Configuration
 @RequiredArgsConstructor

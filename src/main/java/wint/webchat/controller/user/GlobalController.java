@@ -9,22 +9,18 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import wint.webchat.entities.user.User;
 import wint.webchat.security.CustomUserDetail;
 
 @ControllerAdvice
 public class GlobalController {
-//    @ModelAttribute("userData")
-//    public User homePage(Authentication authentication, Model model){
-//        if(authentication!=null){
-//        CustomUserDetail userDetails= (CustomUserDetail) authentication.getPrincipal();
-//        model.addAttribute("userData",userDetails.getUser());
-//        return userDetails.getUser();}
-//        return null;
-//    }
     @ExceptionHandler(ExpiredJwtException.class)
-    @ResponseBody
     public ResponseEntity<String> handlerExpiredJwtException(ExpiredJwtException ex){
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Token hết hạn");
+    }
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Object> handlerMaxUploadSizeExceededException(MaxUploadSizeExceededException me){
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("File size exceeds the maximum allowed limit.");
     }
 }
