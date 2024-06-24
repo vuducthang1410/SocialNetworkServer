@@ -1,9 +1,7 @@
 package wint.webchat.repositories.Impl;
 
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.ParameterMode;
-import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.StoredProcedureQuery;
+import jakarta.persistence.*;
+import org.hibernate.query.NativeQuery;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
@@ -47,14 +45,19 @@ public class UserRepositoryImpl implements IUserRepository {
     }
 
     @Override
-    public ProfileDTO getProfile(int id) {
-        StoredProcedureQuery storedProcedureQuery=entityManager.createStoredProcedureQuery("get_profile");
-        storedProcedureQuery.registerStoredProcedureParameter("user_id",Integer.class, ParameterMode.IN);
-        storedProcedureQuery.setParameter("user_id",id);
-        List<Object[]> resultList=storedProcedureQuery.getResultList();
-        return resultList.stream().findFirst().map(mapper::profileDTO).orElse(null);
+    public List<ProfileDTO> getProfile(long id) {
+        Query query=entityManager.createQuery(
+                "select u.id ,u.fullName,u.email,u.urlAvatar,u.dateOfBirth,u.describe," +
+                        "u.isOnline,u.urlImgCover,u.idAddress,count(f.id)as amountFriend " +
+                        "from User u " +
+                        "left join Friend f " +
+                        "on (u.id=f.userInvitationReceiver.id or u.id=f.userInvitationSender.id) " +
+                        "and f.isAccept=true " +
+                "where u.id=:userId " +
+                        "group by u.id,u.fullName,u.email,u.describe,u.urlAvatar," +
+                        "u.urlImgCover,u.dateOfBirth,u.idAddress,u.isOnline",ProfileDTO.class);
+        query.setParameter("userId",id);
+        List<ProfileDTO> resultList=query.getResultList();
+        return resultList;
     }
-//    public ResponseEntity<Object> updateRefreshToken(){
-//
-//    }
 }

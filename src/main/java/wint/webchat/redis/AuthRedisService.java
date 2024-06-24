@@ -27,7 +27,7 @@ public class AuthRedisService {
         return null;
     }
 
-    public void deleteTokenIsExpiration(AuthRedisDTO authRedisDTO) {
+    public void deleteToken(AuthRedisDTO authRedisDTO) {
         SetOperations<String, Object> setOfValue = redisTemplate.opsForSet();
         setOfValue.remove(authRedisDTO.getUsername(), authRedisDTO);
     }
@@ -39,14 +39,17 @@ public class AuthRedisService {
 
     public AuthRedisDTO getAuthRedisDTO(LinkedHashMap<String, Object> data) {
         ArrayList<LinkedHashMap<String, String>> arrayList = (ArrayList<LinkedHashMap<String, String>>) data.get("authorities");
-        Collection<GrantedAuthority> authority = arrayList.stream()
-                .map(e -> new GrantedAuthority() {
-                    @Override
-                    public String getAuthority() {
-                        return e.get("authority");
-                    }
-                })
-                .collect(Collectors.toList());
+        Collection<GrantedAuthority> authority = null;
+        if (arrayList != null) {
+            authority = arrayList.stream()
+                    .map(e -> new GrantedAuthority() {
+                        @Override
+                        public String getAuthority() {
+                            return e.get("authority");
+                        }
+                    })
+                    .collect(Collectors.toList());
+        }
         SetOperations<String, Object> listOfValue = redisTemplate.opsForSet();
         return AuthRedisDTO.builder()
                 .accessToken((String) data.get("accessToken"))
@@ -55,15 +58,18 @@ public class AuthRedisService {
                 .username((String) data.get("username"))
                 .build();
     }
-    public boolean isAccessTokenContainRedis(String token,String key){
-        List<AuthRedisDTO> authRedisDTOList=getDataInSetByKey(key);
-        return authRedisDTOList.stream().anyMatch(e->e.getAccessToken().equalsIgnoreCase(token));
+
+    public boolean isAccessTokenContainRedis(String token, String key) {
+        List<AuthRedisDTO> authRedisDTOList = getDataInSetByKey(key);
+        return authRedisDTOList.stream().anyMatch(e -> e.getAccessToken().equalsIgnoreCase(token));
     }
-    public boolean isRefreshTokenContainRedis(String token,String key){
-        List<AuthRedisDTO> authRedisDTOList=getDataInSetByKey(key);
-        return authRedisDTOList.stream().anyMatch(e->e.getRefreshToken().equalsIgnoreCase(token));
+
+    public boolean isRefreshTokenContainRedis(String token, String key) {
+        List<AuthRedisDTO> authRedisDTOList = getDataInSetByKey(key);
+        return authRedisDTOList.stream().anyMatch(e -> e.getRefreshToken().equalsIgnoreCase(token));
     }
-    public Collection<GrantedAuthority> getGrantedAuthoritiesWithRefreshToken(String key){
+
+    public Collection<GrantedAuthority> getGrantedAuthoritiesWithRefreshToken(String key) {
         SetOperations<String, Object> setOfValue = redisTemplate.opsForSet();
         Set<Object> data = setOfValue.members(key);
         if (data != null) {

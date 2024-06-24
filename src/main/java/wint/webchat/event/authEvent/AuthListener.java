@@ -32,6 +32,10 @@ public class AuthListener implements MessageListener {
                 authSubscriber.saveTokenToServer((LinkedHashMap<String, Object>) dataObject.getPayload());
             }else if(dataObject.getEvenType().equalsIgnoreCase(AuthEventType.REFRESH_ACCESS_TOKEN.getGetAuthEventType())){
                 authSubscriber.saveNewAccessTokenToServer((LinkedHashMap<String, Object>) dataObject.getPayload());
+            } else if (dataObject.getEvenType().equalsIgnoreCase(AuthEventType.LOGOUT.getGetAuthEventType())) {
+                authSubscriber.deleteRefreshToken((LinkedHashMap<String, Object>) dataObject.getPayload());
+            } else if (dataObject.getEvenType().equalsIgnoreCase(AuthEventType.LOGOUT_ALL.getGetAuthEventType())) {
+                authSubscriber.deleteAllTokenByUsername((LinkedHashMap<String, Object>) dataObject.getPayload());
             }
             System.out.println(dataObject);
         } catch (IOException e) {

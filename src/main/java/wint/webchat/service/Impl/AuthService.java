@@ -62,13 +62,14 @@ public class AuthService {
     private final AuthPublish authPublish;
     private final JsonMapper jsonMapper;
     private final AuthRedisService authRedisService;
+
     public ApiResponse<AuthResponseData> signIn(AuthLoginDTO authLoginDTO, HttpServletResponse response) {
         try {
             Authentication authentication = UsernamePasswordAuthenticationToken.unauthenticated(authLoginDTO.getUsername(), authLoginDTO.getPassword());
             Authentication authenticationResponse = authenticationManager.authenticate(authentication);
             CustomUserDetail obj = (CustomUserDetail) authenticationResponse.getPrincipal();
             return ApiResponse.<AuthResponseData>builder()
-                    .data(getResponseAuthData(obj,response))
+                    .data(getResponseAuthData(obj, response))
                     .success(true)
                     .code(200)
                     .message("Login success")
@@ -109,22 +110,22 @@ public class AuthService {
         }
     }
 
-    public ApiResponse<Map<String,String>> refreshToken(String refreshToken) {
+    public ApiResponse<Map<String, String>> refreshToken(String refreshToken) {
         try {
             if (refreshToken.length() == 0) throw new Exception();
             jwtService.isTokenExpiration(refreshToken);
             String username = jwtService.getUsernameFromToken(refreshToken);
-            if (authRedisService.isRefreshTokenContainRedis(refreshToken,username)) {
-                if(!jwtService.isTokenExpiration(refreshToken)) {
+            if (authRedisService.isRefreshTokenContainRedis(refreshToken, username)) {
+                if (!jwtService.isTokenExpiration(refreshToken)) {
                     Collection<GrantedAuthority> authorities = authRedisService.getGrantedAuthoritiesWithRefreshToken(username);
                     String newAccessToken = jwtService.generateAccessToken(new HashMap<>(), username, authorities);
-                   AuthRedisDTO authRedisDTO=AuthRedisDTO.builder()
+                    AuthRedisDTO authRedisDTO = AuthRedisDTO.builder()
                             .accessToken(newAccessToken)
                             .refreshToken(refreshToken)
                             .username(username)
-                           .authorities(authorities)
+                            .authorities(authorities)
                             .build();
-                    PubSubMessage<AuthRedisDTO> pubSubMessage= PubSubMessage
+                    PubSubMessage<AuthRedisDTO> pubSubMessage = PubSubMessage
                             .<AuthRedisDTO>builder()
                             .messageId("")
                             .timeMessageCreate(new Date().getTime())
@@ -133,38 +134,37 @@ public class AuthService {
                             .payload(authRedisDTO)
                             .build();
                     authPublish.publishEvent(jsonMapper.objectToJson(pubSubMessage));
-                    return ApiResponse.<Map<String,String>>builder()
+                    return ApiResponse.<Map<String, String>>builder()
                             .error(Map.of())
                             .code(StatusCode.SUCCESS_CODE)
                             .message("Successfully")
-                            .data(Map.of("accessToken",newAccessToken))
+                            .data(Map.of("accessToken", newAccessToken))
                             .success(true)
                             .build();
-                }
-                else{
+                } else {
                     throw new UnsupportedJwtException("");
                 }
             } else
                 throw new Exception();
         } catch (ExpiredJwtException eje) {
-           return ApiResponse.<Map<String,String>>builder()
-                    .error(Map.of("refreshToken","REFRESH_TOKEN_EXPIRATION"))
+            return ApiResponse.<Map<String, String>>builder()
+                    .error(Map.of("refreshToken", "REFRESH_TOKEN_EXPIRATION"))
                     .code(StatusCode.REFRESH_TOKEN_EXPIRATION_CODE)
                     .message("Failure")
                     .data(Map.of())
                     .success(false)
                     .build();
         } catch (UnsupportedJwtException uje) {
-            return ApiResponse.<Map<String,String>>builder()
-                    .error(Map.of("refreshToken","REFRESH_TOKEN_UNSUPPORTED"))
+            return ApiResponse.<Map<String, String>>builder()
+                    .error(Map.of("refreshToken", "REFRESH_TOKEN_UNSUPPORTED"))
                     .code(StatusCode.TOKEN_NOT_VALID_CODE)
                     .message("Failure")
                     .data(Map.of())
                     .success(false)
                     .build();
         } catch (Exception e) {
-            return ApiResponse.<Map<String,String>>builder()
-                    .error(Map.of("refreshToken","SERVER ERROR"))
+            return ApiResponse.<Map<String, String>>builder()
+                    .error(Map.of("refreshToken", "SERVER ERROR"))
                     .code(StatusCode.SERVER_ERROR)
                     .message("Failure")
                     .data(Map.of())
@@ -217,11 +217,14 @@ public class AuthService {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error" + e.getMessage());
         }
     }
+
     private AuthResponseData getResponseAuthData(CustomUserDetail userDetail, HttpServletResponse response) {
         var accessToken = jwtService.generateAccessToken(new HashMap<>(), userDetail.getUsername(), (Collection<GrantedAuthority>) userDetail.getAuthorities());
         var refreshToken = jwtService.generateRefreshToken(userDetail.getUsername());
         Cookie cookie = new Cookie(RedisKeys.REFRESH_TOKEN.getValueRedisKey(), refreshToken);
         cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setMaxAge(86400000);
         response.addCookie(cookie);
         var user = userDetail.getUser();
         addMessageToAuthQueue(user.getUserName(), accessToken, refreshToken, (Collection<GrantedAuthority>) userDetail.getAuthorities());
@@ -270,18 +273,50 @@ public class AuthService {
                     .build();
         }
     }
+    public void logout(String refreshToken) {
+        publishLogoutEvent(refreshToken, AuthEventType.LOGOUT);
+    }
+
+    public void logoutAll(String refreshToken) {
+        publishLogoutEvent(refreshToken, AuthEventType.LOGOUT_ALL);
+    }
+
+    private void publishLogoutEvent(String refreshToken, AuthEventType eventType) {
+        String username = jwtService.getUsernameFromToken(refreshToken);
+        AuthRedisDTO authRedisDTO = AuthRedisDTO.builder()
+                .username(username)
+                .refreshToken(refreshToken)
+                .accessToken("")
+                .authorities(Collections.emptyList())
+                .build();
+
+        PubSubMessage<AuthRedisDTO> pubSubMessage = PubSubMessage.<AuthRedisDTO>builder()
+                .messageId("")
+                .timeMessageCreate(new Date().getTime())
+                .payload(authRedisDTO)
+                .attributes(Collections.emptyMap())
+                .evenType(eventType.getGetAuthEventType())
+                .build();
+
+        try {
+            authPublish.publishEvent(jsonMapper.objectToJson(pubSubMessage));
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     private void addMessageToAuthQueue(String username,
                                        String accessToken,
                                        String refreshToken,
                                        Collection<GrantedAuthority> authorities) {
-        AuthRedisDTO authRedisDTO=AuthRedisDTO.builder()
+        AuthRedisDTO authRedisDTO = AuthRedisDTO.builder()
                 .username(username)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .authorities(authorities)
                 .build();
-        PubSubMessage<AuthRedisDTO> pubSubMessage=PubSubMessage.<AuthRedisDTO>builder()
+        PubSubMessage<AuthRedisDTO> pubSubMessage = PubSubMessage.<AuthRedisDTO>builder()
                 .messageId("")
                 .timeMessageCreate(new Date().getTime())
                 .payload(authRedisDTO)

@@ -51,13 +51,16 @@ server:
 
 jwt:
   secret: SgTPK0QnzgiFKOPQX2WbQo54cd0lKoLNuaguasyajsjhdgasdgyugaufubbewuegkHHGSGhajhafasffa
-  accessTokenExpirationMs: 600000
+  accessTokenExpirationMs: 60000
   refreshTokenExpirationMs: 86400000
 
 frontend:
   url: http://localhost:3000
   url-reset-password: http://localhost:3000/reset-password
+server.ssl.enabled: false
 
+OPENVIDU_URL: http://localhost:4443/
+OPENVIDU_SECRET: MY_SECRET
 #logging:
 #  level:
 #    org.springframework.security: DEBUG

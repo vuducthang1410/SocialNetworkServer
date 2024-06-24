@@ -159,6 +159,11 @@
             <artifactId>spring-security-messaging</artifactId>
             <version>6.3.0</version>
         </dependency>
+        <dependency>
+            <groupId>io.openvidu</groupId>
+            <artifactId>openvidu-java-client</artifactId>
+            <version>2.30.0</version>
+        </dependency>
     </dependencies>
 
     <build>

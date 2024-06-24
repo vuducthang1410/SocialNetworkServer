@@ -15,12 +15,12 @@ public class MapperObj {
         profile.setFullName((String) obj[1]);
         profile.setEmail((String) obj[2]);
         profile.setUrlAvatar((String) obj[3]);
-        profile.setDateOfBirth((Date) obj[4]);
+//        profile.setDateOfBirth((Date) obj[4]);
         profile.setDescribe((String) obj[5]);
         profile.setIsOnline((Boolean) obj[6]);
         profile.setUrlImgCover((String) obj[7]);
-        profile.setAmountFriend((Integer) obj[8]);
-        profile.setAmountPost((Integer) obj[9]);
+//        profile.setAmountFriend((Integer) obj[8]);
+//        profile.setAmountPost((Integer) obj[9]);
         return profile;
     }
     public PostDTO getPostDTO(Object[] obj){

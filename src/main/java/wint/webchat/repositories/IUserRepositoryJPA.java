@@ -7,6 +7,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import wint.webchat.entities.user.User;
+import wint.webchat.modelDTO.reponse.ProfileDTO;
 
 import java.util.Optional;
 
@@ -20,4 +21,5 @@ public interface IUserRepositoryJPA extends JpaRepository<User, String> {
     @Modifying
     @Query("update User u set u.passwordEncrypt = ?2 where u.email=?1")
     void updatePasswordByEmail(@Param("email") String email,@Param("password") String password);
+
 }

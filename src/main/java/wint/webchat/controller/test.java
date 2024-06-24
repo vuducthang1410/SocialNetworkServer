@@ -2,6 +2,8 @@ package wint.webchat.controller;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -41,10 +43,9 @@ public class test {
 //        mailService.sendHtmlMail("123xxthang@gmail.com","Quên mật khẩu","");
     }
     @GetMapping("/test/redis")
-    public void getValue() {
-//        System.out.println("da get");
-//        return redisService.getToken("1001", RedisKeys.ACCESS_TOKEN.getValueRedisKey());
-//        mailService.sendHtmlMail("123xxthang@gmail.com","Quên mật khẩu","");
+    public void getValue(HttpServletResponse response) {
+        Cookie cookie=new Cookie("hehe","hehe");
+        response.addCookie(cookie);
     }
     @GetMapping("/test/send-error")
     public ResponseEntity<String> response() throws JsonProcessingException {

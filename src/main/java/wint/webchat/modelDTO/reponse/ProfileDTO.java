@@ -1,7 +1,8 @@
 package wint.webchat.modelDTO.reponse;
 
 import lombok.*;
-import java.util.Date;
+
+import java.sql.Date;
 
 @Getter
 @Setter
@@ -16,6 +17,6 @@ public class ProfileDTO {
     private String describe;
     private Boolean isOnline;
     private String urlImgCover;
-    private int amountPost;
-    private int amountFriend;
+    private String idAddress;
+    private Long amountFriend;
 }
