@@ -18,8 +18,13 @@ public interface IUserRepositoryJPA extends JpaRepository<User, String> {
                 select u from User u where u.userName = :username
             """)
     Optional<User> findUsersByUserName(String username);
+
     @Modifying
     @Query("update User u set u.passwordEncrypt = ?2 where u.email=?1")
-    void updatePasswordByEmail(@Param("email") String email,@Param("password") String password);
+    void updatePasswordByEmail(@Param("email") String email, @Param("password") String password);
 
+    @Query("""
+            SELECT u FROM  User u WHERE u.id= :id
+            """)
+    Optional<User> findUsersById(@Param("id") Long id);
 }

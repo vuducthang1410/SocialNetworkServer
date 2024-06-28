@@ -4,7 +4,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Repository;
-import org.springframework.stereotype.Service;
 
 import java.time.Duration;
 import java.util.HashMap;
@@ -38,9 +37,18 @@ public class RedisService {
         redisTemplate.opsForValue().set(key,value);
         redisTemplate.expire(key, Duration.ofHours(3));
     }
-    public String getValue(String key) throws NullPointerException{
+    public String getValueAndRemove(String key) throws NullPointerException{
         String value=Objects.requireNonNull(redisTemplate.opsForValue().get(key)).toString();
         redisTemplate.delete(key);
         return value;
+    }
+    public void setValue(String key, Object value){
+            redisTemplate.opsForValue().set(key,value);
+    }
+    public void deleteValue(String key){
+        redisTemplate.delete(key);
+    }
+    public Object getValue(String key){
+        return redisTemplate.opsForValue().get(key);
     }
 }

@@ -2,12 +2,12 @@ package wint.webchat.repositories.Impl;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import org.hibernate.query.NativeQuery;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Repository;
 import wint.webchat.entities.user.Friend;
 import wint.webchat.modelDTO.reponse.FriendDTO;
-import wint.webchat.modelDTO.reponse.ProfileDTO;
 import wint.webchat.repositories.IFriendRepository;
 
 import java.util.List;
@@ -19,6 +19,7 @@ public class FriendRepositoryImpl implements IFriendRepository {
 
     @Override
     public ResponseEntity<String> add(Friend friend) {
+        entityManager.persist(friend);
         return null;
     }
 
@@ -29,7 +30,19 @@ public class FriendRepositoryImpl implements IFriendRepository {
 
     @Override
     public ResponseEntity<String> update(Friend friend) {
-        return null;
+        entityManager.merge(friend);
+        return ResponseEntity.ok("success");
+    }
+
+    public List<Friend> getFriendById(Long userId1,Long userId2) {
+        String sql= """
+select f from  Friend f where (f.userInvitationSender.id=:userId1 and f.userInvitationReceiver.id=:userId2) 
+or (f.userInvitationSender.id=:userId2 and f.userInvitationReceiver.id=:userId1)
+""";
+        Query query = entityManager.createQuery(sql,Friend.class);
+        query.setParameter("userId1",userId1);
+        query.setParameter("userId2",userId2);
+        return query.getResultList();
     }
 
     @Override
@@ -37,7 +50,110 @@ public class FriendRepositoryImpl implements IFriendRepository {
         return null;
     }
 
-//    public List<FriendDTO> getRandomUserNotFriend(int userId, int count) {
-//        entityManager.createQuery("SELECT u from User  u where u.id != :userId order by newID()").setMaxResults(count).setParameter("userId",userId);
-//    }
+    @Override
+    public List<FriendDTO> getListFriendById(Long id, int startGet, int amountGet) {
+        NativeQuery<FriendDTO> nativeQuery= (NativeQuery<FriendDTO>) entityManager.createNativeQuery(
+                "select\n" +
+                "        u1_0.id,\n" +
+                "        u1_0.url_avatar,\n" +
+                "        u1_0.is_online,\n" +
+                "        u1_0.full_name,\n" +
+                "        (select\n" +
+                "            count_big(f1_0.is_accept) \n" +
+                "        from\n" +
+                "            friend f1_0 \n" +
+                "        where\n" +
+                "            f1_0.is_accept=1 \n" +
+                "            and (\n" +
+                "                f1_0.user_id_sender=u1_0.id \n" +
+                "                or f1_0.user_id_receiver=u1_0.id\n" +
+                "            )) as amountFriend\n" +
+                "    from\n" +
+                "        [user] u1_0 \n" +
+                "    where\n" +
+                "        u1_0.id in (select\n" +
+                "            f2_0.user_id_receiver \n" +
+                "        from\n" +
+                "            friend f2_0 \n" +
+                "        where\n" +
+                "            f2_0.is_accept=1 \n" +
+                "            and f2_0.user_id_sender=:userId) \n" +
+                "    union\n" +
+                "    select\n" +
+                "        u2_0.id,\n" +
+                "        u2_0.url_avatar,\n" +
+                "        u2_0.is_online,\n" +
+                "        u2_0.full_name,\n" +
+                "        (select\n" +
+                "            count_big(f3_0.is_accept) \n" +
+                "        from\n" +
+                "            friend f3_0 \n" +
+                "        where\n" +
+                "            f3_0.is_accept=1 \n" +
+                "            and (\n" +
+                "                f3_0.user_id_sender=u2_0.id \n" +
+                "                or f3_0.user_id_receiver=u2_0.id\n" +
+                "            )) as amountFriend \n" +
+                "    from\n" +
+                "        [user] u2_0 \n" +
+                "    where\n" +
+                "        u2_0.id in (select\n" +
+                "            f4_0.user_id_sender \n" +
+                "        from\n" +
+                "            friend f4_0 \n" +
+                "        where\n" +
+                "            f4_0.user_id_receiver=:userId\n" +
+                "            and f4_0.is_accept=1) \n" +
+                "   ORDER BY 1 \n" +
+                "    offset\n" +
+                "        :start rows \n" +
+                "    fetch\n" +
+                "        first :amount rows only",FriendDTO.class);
+        nativeQuery.setParameter("userId", id);
+        nativeQuery.setParameter("amount", amountGet);
+        nativeQuery.setParameter("start", startGet);
+         return nativeQuery.getResultList();
+    }
+
+    @Override
+    public List<FriendDTO> getInvitationsReceivedById(Long id, int start, int amount) {
+        String sql = "select u.id,u.urlAvatar,u.isOnline,u.fullName," +
+                "(select count(f.isAccept) " +
+                "from Friend f " +
+                "where f.isAccept=true " +
+                "and (f.userInvitationSender.id=u.id " +
+                "or f.userInvitationReceiver.id=u.id)) " +
+                "from User u " +
+                "where u.id in " +
+                "(select f.userInvitationSender.id " +
+                "from Friend f " +
+                "where f.userInvitationReceiver.id = :userId " +
+                "and f.isAccept=false and f.isRefuse=false and f.isDelete=false )";
+        Query query = entityManager.createQuery(sql, FriendDTO.class);
+        query.setParameter("userId", id);
+        query.setMaxResults(amount);
+        query.setFirstResult(start);
+        return query.getResultList();
+    }
+
+    @Override
+    public List<FriendDTO> getInvitationsSentById(Long id, int start, int amount) {
+        String sql =
+                "select u.id,u.urlAvatar,u.isOnline,u.fullName," +
+                        "(select count(*) " +
+                        "from Friend f " +
+                        "where f.isAccept=false and f.isRefuse=false and f.isDelete=false " +
+                        "and (f.userInvitationSender.id=u.id " +
+                        "or f.userInvitationReceiver.id=u.id) )" +
+                        "from User u " +
+                        "where u.id in " +
+                        "(select f.userInvitationReceiver.id " +
+                        "from Friend f where f.isAccept =false and f.isRefuse=false and f.isDelete=false " +
+                        "and f.userInvitationSender.id= :userId )";
+        Query query = entityManager.createQuery(sql, FriendDTO.class);
+        query.setParameter("userId", id);
+        query.setMaxResults(amount);
+        query.setFirstResult(start);
+        return query.getResultList();
+    }
 }

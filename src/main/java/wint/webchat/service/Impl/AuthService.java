@@ -247,7 +247,7 @@ public class AuthService {
 
     public ApiResponse<String> resetPassword(ResetPasswordDTO resetPasswordDTO) {
         try {
-            String authorizationToken = redisService.getValue(resetPasswordDTO.getEmail());
+            String authorizationToken = redisService.getValueAndRemove(resetPasswordDTO.getEmail());
             if (authorizationToken.equalsIgnoreCase(resetPasswordDTO.getAuthorization())) {
                 userRepositoryJPA.updatePasswordByEmail(resetPasswordDTO.getEmail(), passwordEncoder.encode(resetPasswordDTO.getPassword()));
                 return ApiResponse.<String>builder()

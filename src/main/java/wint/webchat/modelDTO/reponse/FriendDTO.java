@@ -1,18 +1,17 @@
 package wint.webchat.modelDTO.reponse;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.Internal;
+
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+//@ToString
 public class FriendDTO {
-    private Integer id;
-    private String fullName;
-    private boolean isFriend;
+    private Long id;
     private String urlAvatar;
-    private Integer amountFriend;
+    private Boolean isOnline;
+    private String fullName;
+    private Long amountFriend;
 }
