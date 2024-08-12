@@ -1,6 +1,7 @@
 package wint.webchat.entities.post;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.CreationTimestamp;
 import wint.webchat.entities.user.User;
 
 import java.io.Serializable;
@@ -10,27 +11,19 @@ import java.util.List;
 @Entity
 public class Comment implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE)
-    private int id;
-    @Column
-    private Timestamp timeComment;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
+    @Column(name = "CREATE_TIME")
+    @CreationTimestamp
+    private Timestamp createTime;
     @Column(columnDefinition = "nvarchar(max)" )
     private String content;
-    @Column
+    @Column(name = "IS_DELETE")
     private Boolean isDelete;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_user_comment")
-    private User userComment;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_post")
-    private Post postComment;
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_comment")
-    private Comment parentComment;
-
-    @OneToMany(mappedBy = "commentMedia")
-    private List<Media> listMedia;
-    @OneToMany(mappedBy = "parentComment")
-    private List<Comment> commentChildList;
+    @Column(name = "CREATE_BY")
+    private String createBy;
+    @Column(name = "POST_ID_COMMENT")
+    private String post_id;
+    @Column(name = "PARENT_COMMENT_ID")
+    private String parent_comment_Id;
 }

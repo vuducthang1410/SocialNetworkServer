@@ -14,10 +14,11 @@ public class MapperObj {
         return postDTO;
     }
     public AuthResponseData mapUserToAuthResponseData(User user){
-        return AuthResponseData.builder()
-                .userId(user.getId())
-                .fullName(user.getFullName())
-                .urlAvatar(user.getUrlAvatar())
-                .build();
+//        return AuthResponseData.builder()
+//                .userId(user.getId())
+//                .fullName(user.getFullName())
+//                .urlAvatar(user.getUrlAvatar())
+//                .build();
+        return null;
     }
 }

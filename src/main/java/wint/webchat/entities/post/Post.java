@@ -17,36 +17,25 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class Post implements Serializable {
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @Column(name = "id_post", nullable = false)
-    private int idPost;
+    @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "ID_POST", nullable = false)
+    private String idPost;
     @Basic
-    @Column(name = "privacy_id", nullable = true, length = 10)
-    private String privacyId;
-
+    @Column(name="ACCESS_RANGE",length = 500)
+    private String accessRange;
     @Basic
-    @Column(name = "is_delete", nullable = true)
+    @Column(name = "IS_DELETE", nullable = true)
     private Boolean isDelete;
     @Basic
-    @Column(name = "caption", nullable = true, length = 2147483647,columnDefinition = "nvarchar")
+    @Column(name = "CAPTION", nullable = true, length = 2147483647,columnDefinition = "nvarchar")
     private String caption;
     @Basic
-    @Column(name = "time_create_post", nullable = true)
-    private Timestamp timeCreatePost;
+    @Column(name = "TIME_CREATE", nullable = true)
+    private Timestamp createTime;
     @Basic
     @Column(name = "type_post_id", nullable = true, length = 10)
     private String typePostId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "userIdCreate")
-    private User userCreatePost;
-    @OneToMany(mappedBy = "postGroup")
-    private List<PostGroup> postGroupList;
-    @OneToMany(mappedBy = "postMedia")
-    private List<Media> list;
-    @OneToMany(mappedBy = "postComment")
-    private List<Comment> listComment;
-    @OneToMany(mappedBy = "postInteract")
-    private List<Interact> listUserInteract;
+    @Column(name = "CREATE_BY")
+    private String createBy;
 }

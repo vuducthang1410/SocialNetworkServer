@@ -3,22 +3,22 @@ package wint.webchat.entities.post;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.checkerframework.checker.units.qual.C;
 import wint.webchat.entities.group.Group;
+
+import java.io.Serializable;
 
 
 @Entity
 @Getter
 @Setter
-public class PostGroup {
+@Table(name = "tbl_post_group")
+public class PostGroup implements Serializable {
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_post",nullable = false
-    ,foreignKey = @ForeignKey(name = "post_group_FK"))
-    private Post postGroup;
+    @Column(name = "ID_POST")
+    private String idPost;
 
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "id_group", nullable = false,foreignKey =   @ForeignKey(name = "group_post_FK"))
-    private Group idGroup;
-
+    @Column(name = "IS_GROUP")
+    private String idGroup;
 }

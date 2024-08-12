@@ -3,6 +3,8 @@ package wint.webchat.entities.user;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -12,20 +14,18 @@ import java.sql.Timestamp;
 @Setter
 public class Friend implements Serializable {
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id_sender",foreignKey = @ForeignKey(name = "user_sender_invitation_FK")
-    )
-    private User userInvitationSender;
+    @Column(name = "USER_ID_SENSER")
+    private String userIdSender;
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id_receiver",foreignKey = @ForeignKey(name = "user_receiver_invitation_FK"))
-    private User userInvitationReceiver;
+    @Column(name = "USER_ID_RECEIVER")
+    private String userIdReceiver;
     @Column
     private Boolean isAccept;
-    @Column
-    private Timestamp timeSend;
-    @Column
+    @Column(name = "TIME_CREATE")
+    @UpdateTimestamp
+    private Timestamp timeCreate;
+    @Column(name = "IS_DELETE")
     private Boolean isDelete;
-    @Column
+    @Column(name = "IS_REFUSE")
     private Boolean isRefuse;
 }

@@ -62,21 +62,21 @@ public class FriendServiceImpl implements IFriendService {
             if (friend.getIsRefuse()) {
                 //if the recipient has never declined the sender's invitation
                 //if condition = false ,send invitation to receiver else return
-                if (!Objects.equals(friend.getUserInvitationSender().getId(), senderId)) {
-                    friend.setTimeSend(new Timestamp(new Date().getTime()));
-                    friend.setIsAccept(false);
-                    friend.setIsRefuse(false);
-                    friend.setIsDelete(false);
-                    User sender = friend.getUserInvitationReceiver();
-                    friend.setUserInvitationReceiver(friend.getUserInvitationSender());
-                    friend.setUserInvitationSender(sender);
-                    friendRepository.add(friend);
-                    return ApiResponse.<String>builder()
-                            .message("Successfully")
-                            .success(true)
-                            .code(200)
-                            .error(Collections.emptyMap())
-                            .build();
+//                if (!Objects.equals(friend.getUserInvitationSender().getId(), senderId)) {
+//                    friend.setTimeSend(new Timestamp(new Date().getTime()));
+//                    friend.setIsAccept(false);
+//                    friend.setIsRefuse(false);
+//                    friend.setIsDelete(false);
+//                    User sender = friend.getUserInvitationReceiver();
+//                    friend.setUserInvitationReceiver(friend.getUserInvitationSender());
+//                    friend.setUserInvitationSender(sender);
+//                    friendRepository.add(friend);
+//                    return ApiResponse.<String>builder()
+//                            .message("Successfully")
+//                            .success(true)
+//                            .code(200)
+//                            .error(Collections.emptyMap())
+//                            .build();
                 } else {
                     return ApiResponse.<String>builder()
                             .message("You have been rejected so you cannot repeat that action")
@@ -87,46 +87,46 @@ public class FriendServiceImpl implements IFriendService {
                 }
             } else {
 //                if friend invitation not delele , friend invitation is exist
-                if (friend.getIsDelete()) {
-                    User user1 = friend.getUserInvitationReceiver();
-                    User user2 = friend.getUserInvitationSender();
-                    friend.setIsAccept(false);
-                    friend.setIsRefuse(false);
-                    friend.setIsDelete(false);
-                    friend.setTimeSend(new Timestamp(new Date().getTime()));
-                    boolean user1IsSender = user1.getId().equals(senderId);
-                    if (user1IsSender) {
-                        friend.setUserInvitationSender(user1);
-                        friend.setUserInvitationReceiver(user2);
-                    } else {
-                        friend.setUserInvitationSender(user2);
-                        friend.setUserInvitationReceiver(user1);
-                    }
-                    friendRepository.add(friend);
-                    return ApiResponse.<String>builder()
-                            .message("Successfully")
-                            .success(true)
-                            .code(200)
-                            .error(Collections.emptyMap())
-                            .build();
-                } else {
-                    return ApiResponse.<String>builder()
-                            .message("The friend request already exists")
-                            .success(false)
-                            .code(200)
-                            .error(Map.of("Refuse", "The friend request already exists"))
-                            .build();
-                }
+//                if (friend.getIsDelete()) {
+//                    User user1 = friend.getUserInvitationReceiver();
+//                    User user2 = friend.getUserInvitationSender();
+//                    friend.setIsAccept(false);
+//                    friend.setIsRefuse(false);
+//                    friend.setIsDelete(false);
+//                    friend.setTimeSend(new Timestamp(new Date().getTime()));
+//                    boolean user1IsSender = user1.getId().equals(senderId);
+//                    if (user1IsSender) {
+//                        friend.setUserInvitationSender(user1);
+//                        friend.setUserInvitationReceiver(user2);
+//                    } else {
+//                        friend.setUserInvitationSender(user2);
+//                        friend.setUserInvitationReceiver(user1);
+//                    }
+//                    friendRepository.add(friend);
+//                    return ApiResponse.<String>builder()
+//                            .message("Successfully")
+//                            .success(true)
+//                            .code(200)
+//                            .error(Collections.emptyMap())
+//                            .build();
+//                } else {
+//                    return ApiResponse.<String>builder()
+//                            .message("The friend request already exists")
+//                            .success(false)
+//                            .code(200)
+//                            .error(Map.of("Refuse", "The friend request already exists"))
+//                            .build();
+//                }
             }
-        }
+//        }
         var userSender = userRepositoryJPA.findUsersById(senderId);
         var userReceiver = userRepositoryJPA.findUsersById(receiverId);
         if (userSender.isPresent() && userReceiver.isPresent()) {
             Friend friend = new Friend();
             friend.setIsDelete(false);
-            friend.setUserInvitationReceiver(userReceiver.get());
-            friend.setUserInvitationSender(userSender.get());
-            friend.setTimeSend(new Timestamp(new Date().getTime()));
+//            friend.setUserInvitationReceiver(userReceiver.get());
+//            friend.setUserInvitationSender(userSender.get());
+//            friend.setTimeSend(new Timestamp(new Date().getTime()));
             friend.setIsAccept(false);
             friend.setIsRefuse(false);
             friendRepository.add(friend);
@@ -155,7 +155,7 @@ public class FriendServiceImpl implements IFriendService {
             friend.setIsDelete(true);
             friend.setIsAccept(false);
             friend.setIsRefuse(false);
-            friend.setTimeSend(new Timestamp(new Date().getTime()));
+//            friend.setTimeSend(new Timestamp(new Date().getTime()));
             friendRepository.update(friend);
             return ApiResponse.<String>builder()
                     .message("Successfully")
@@ -179,15 +179,15 @@ public class FriendServiceImpl implements IFriendService {
         var friendList = friendRepository.getFriendById(senderId, receiverId);
         if (!friendList.isEmpty()) {
             Friend friend = friendList.stream().findFirst().get();
-            if (friend.getUserInvitationSender().getId().equals(senderId)) {
-                friend.setIsDelete(true);
-                friend.setIsRefuse(false);
-            } else {
-                friend.setIsDelete(false);
-                friend.setIsRefuse(true);
-            }
+//            if (friend.getUserInvitationSender().getId().equals(senderId)) {
+//                friend.setIsDelete(true);
+//                friend.setIsRefuse(false);
+//            } else {
+//                friend.setIsDelete(false);
+//                friend.setIsRefuse(true);
+//            }
             friend.setIsAccept(false);
-            friend.setTimeSend(new Timestamp(new Date().getTime()));
+//            friend.setTimeSend(new Timestamp(new Date().getTime()));
             friendRepository.update(friend);
             return ApiResponse.<String>builder()
                     .message("Successfully")
@@ -214,7 +214,7 @@ public class FriendServiceImpl implements IFriendService {
             friend.setIsDelete(false);
             friend.setIsAccept(true);
             friend.setIsRefuse(false);
-            friend.setTimeSend(new Timestamp(new Date().getTime()));
+//            friend.setTimeSend(new Timestamp(new Date().getTime()));
             friendRepository.update(friend);
             return ApiResponse.<String>builder()
                     .message("Successfully")

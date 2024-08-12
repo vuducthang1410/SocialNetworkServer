@@ -8,6 +8,7 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import wint.webchat.common.RedisKeys;
@@ -22,6 +23,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("/auth")
@@ -32,8 +34,7 @@ public class AuthController {
     @PostMapping(value = "/signUp")
     public ResponseEntity<String> register(@Valid @RequestBody AuthSignUpDTO authSignUpDTO,
                                            BindingResult bindingResult) {
-        System.out.println(authSignUpDTO.getUsername());
-        bindingResult.getAllErrors().stream().forEach(e -> System.out.println(e.getDefaultMessage()));
+        bindingResult.getAllErrors().forEach(e -> System.out.println(e.getDefaultMessage()));
         if (bindingResult.hasErrors()) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Validation failed");
         }
@@ -57,7 +58,7 @@ public class AuthController {
                 return authService.refreshToken(cookie.get().getValue());
             } else {
                 return ApiResponse.<Map<String, String>>builder()
-                        .code(HttpStatus.BAD_REQUEST.value())
+                        .code(HttpStatus.FORBIDDEN.value())
                         .error(Map.of("cookie", "not found refresh token in cookie"))
                         .message("error")
                         .build();
@@ -71,8 +72,8 @@ public class AuthController {
     }
 
     @PostMapping("/forget-password")
-    public ResponseEntity<String> forgetPassword(@RequestParam("email") String email) {
-        return authService.sendMailResetPassword(email);
+    public CompletableFuture<ResponseEntity<String>> forgetPassword(@RequestParam("email") String email) {
+        return CompletableFuture.completedFuture(authService.sendMailResetPassword(email));
     }
 
     @PostMapping("/reset-password")
@@ -118,4 +119,5 @@ public class AuthController {
         authService.logoutAll(refreshToken);
         return ResponseEntity.ok("successfully");
     }
+
 }

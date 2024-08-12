@@ -20,19 +20,20 @@ public class UserRoleRepositoryImpl {
     private EntityManager entityManager;
     @Transactional
     public ResponseEntity<String> addRoleForUser(User user, List<Role> roleList){
-        Set<UserRole> userRoleSet=new HashSet<>();
-        try {
-            for (Role role : roleList) {
-                if (role != null && user != null) { // Kiểm tra role và user khác null
-                    userRoleSet.add(new UserRole(role, user));
-                }
-            }
-            user.setUserRoleList(userRoleSet);
-            entityManager.persist(user);
-            return ResponseEntity.status(HttpStatus.CREATED).body("register success");
-        }catch (Exception e){
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+//        Set<UserRole> userRoleSet=new HashSet<>();
+//        try {
+//            for (Role role : roleList) {
+//                if (role != null && user != null) { // Kiểm tra role và user khác null
+//                    userRoleSet.add(new UserRole(role, user));
+//                }
+//            }
+//            user.setUserRoleList(userRoleSet);
+//            entityManager.persist(user);
+//            return ResponseEntity.status(HttpStatus.CREATED).body("register success");
+//        }catch (Exception e){
+//            e.printStackTrace();
+//            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+//        }
+        return null;
     }
 }

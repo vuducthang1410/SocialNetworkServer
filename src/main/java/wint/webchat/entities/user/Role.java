@@ -2,6 +2,7 @@ package wint.webchat.entities.user;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -15,17 +16,9 @@ import java.util.Set;
 @Entity
 public class Role implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long idRole;
+    @UuidGenerator(style = UuidGenerator.Style.RANDOM)
+    private String id;
     @Basic
-    @Column(name = "roleName", nullable = true, length = 100)
+    @Column(name = "ROLE_NAME", nullable = true, length = 100)
     private String roleName;
-
-    @OneToMany(mappedBy = "roleUser" )
-    private Set<UserRole> listUserRole;
-
-    public Role(Long idRole, String roleName) {
-        this.idRole = idRole;
-        this.roleName = roleName;
-    }
 }

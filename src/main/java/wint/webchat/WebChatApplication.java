@@ -4,6 +4,7 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import wint.webchat.entities.user.Role;
 import wint.webchat.redis.RedisService;
 import wint.webchat.service.Impl.RoleService;
 import wint.webchat.util.SaveVietNamProvinces;

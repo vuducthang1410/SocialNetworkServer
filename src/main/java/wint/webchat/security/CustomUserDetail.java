@@ -14,10 +14,11 @@ public class CustomUserDetail implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return user.getUserRoleList()
-                .stream()
-                .map(SecurityAuthority::new)
-                .collect(Collectors.toList());
+//        return user.getUserRoleList()
+//                .stream()
+//                .map(SecurityAuthority::new)
+//                .collect(Collectors.toList());
+        return null;
     }
 
     @Override

@@ -2,7 +2,7 @@ spring:
   jpa:
     database: sql_server
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
     show-sql: true
     properties:
       hibernate:
@@ -23,7 +23,6 @@ spring:
           client-id: 930582761358-3sl6m5nvakqs9bjqdoo8mt2q51iqkolu.apps.googleusercontent.com
           client-secret: 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
           introspection-uri: https://www.googleapis.com/
-  thymeleaf:
   servlet:
     multipart:
       max-file-size: 50MB
@@ -51,7 +50,7 @@ server:
 
 jwt:
   secret: SgTPK0QnzgiFKOPQX2WbQo54cd0lKoLNuaguasyajsjhdgasdgyugaufubbewuegkHHGSGhajhafasffa
-  accessTokenExpirationMs: 600000
+  accessTokenExpirationMs: 6000000
   refreshTokenExpirationMs: 86400000
 
 frontend:

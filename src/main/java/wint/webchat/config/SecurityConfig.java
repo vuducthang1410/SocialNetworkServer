@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,7 +20,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import wint.webchat.security.CustomAccessDeniedHandler;
 import wint.webchat.service.Impl.CustomUserDetailServiceImpl;
 
 @Configuration
@@ -29,7 +27,6 @@ import wint.webchat.service.Impl.CustomUserDetailServiceImpl;
 @RequiredArgsConstructor
 public class SecurityConfig {
     private final CustomUserDetailServiceImpl customUserDetailServiceImpl;
-    private final CustomAccessDeniedHandler accessDeniedHandler;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
 
@@ -37,18 +34,20 @@ public class SecurityConfig {
     public static PasswordEncoder passwordEncoder(){
         return new BCryptPasswordEncoder();
     }
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
                httpSecurity.csrf(AbstractHttpConfigurer::disable)
                        .authorizeHttpRequests(request->
-                               request.requestMatchers("/auth/**").permitAll()
+                               request
+                                       .requestMatchers("/auth/**").permitAll()
                                        .requestMatchers("/api/**").hasRole("USER")
                                        .requestMatchers("/test/**").permitAll()
                                        .requestMatchers("/ws/**").permitAll()
                                        .anyRequest().authenticated()
                        )
                        .sessionManagement(sessionConfigurer -> sessionConfigurer.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                       .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                      .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
        return httpSecurity.build();
     }
     @Bean

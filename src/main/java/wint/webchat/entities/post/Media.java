@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.io.Serializable;
+
 @Getter
 @Setter
 @NoArgsConstructor
@@ -14,18 +15,14 @@ import java.io.Serializable;
 @Entity
 public class Media implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    @Column(name = "link_media",columnDefinition = "nvarchar(max)")
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
+    @Column(name = "LINK_MEDIA", columnDefinition = "nvarchar(max)")
     private String linkMedia;
-    @Column
-    private int typeMedia;
-
-    @ManyToOne(cascade = {CascadeType.PERSIST},fetch = FetchType.LAZY)
-    @JoinColumn(name = "post_id")
-    private Post postMedia;
-
-    @ManyToOne (cascade = {CascadeType.PERSIST},fetch = FetchType.LAZY)
-    @JoinColumn(name = "comment_media")
-    private Comment commentMedia;
+    @Column(name = "TYPE_MEDIA")
+    private String typeMedia;
+    @Column(name = "POST_ID")
+    private String postMedia;
+    @Column(name = "COMMENT_ID")
+    private String commentId;
 }

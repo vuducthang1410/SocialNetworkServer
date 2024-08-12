@@ -15,17 +15,15 @@ import java.io.Serializable;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "Member_Group")
+@Table(name = "tbl_member_group")
 public class MemberGroup implements Serializable {
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id")
-    private User userMember;
+    @Column(name = "USER_ID")
+    private String userMember;
 
     @Id
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "group_id")
-    private Group groupMember;
+    @Column(name = "GROUP_ID")
+    private String groupMember;
 
 
 }

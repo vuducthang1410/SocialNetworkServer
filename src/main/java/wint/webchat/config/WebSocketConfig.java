@@ -1,9 +1,11 @@
 package wint.webchat.config;
 
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.security.authorization.AuthenticatedAuthorizationManager;
@@ -21,9 +23,7 @@ import java.util.List;
 
 @EnableWebSocketMessageBroker
 @Configuration
-@Order(Ordered.HIGHEST_PRECEDENCE+99)
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
-
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry) {
         registry.addEndpoint("/ws").setAllowedOriginPatterns("*");
@@ -32,7 +32,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry registry) {
         registry.setApplicationDestinationPrefixes("/app");
-        registry.enableSimpleBroker("/topic");
+        registry.enableSimpleBroker("/topic","/user");
         registry.setUserDestinationPrefix("/user");
     }
 

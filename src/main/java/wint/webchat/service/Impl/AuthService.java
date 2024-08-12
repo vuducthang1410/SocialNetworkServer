@@ -22,7 +22,6 @@ import wint.webchat.common.StatusCode;
 import wint.webchat.entities.user.Role;
 import wint.webchat.entities.user.User;
 import wint.webchat.event.authEvent.AuthPublish;
-import wint.webchat.event.authEvent.AuthSubscriber;
 import wint.webchat.event.mailEvent.MailPublish;
 import wint.webchat.google.GoogleAuth;
 import wint.webchat.mapper.JsonMapper;
@@ -55,7 +54,6 @@ public class AuthService {
     private final UserRoleRepositoryImpl userRoleRepository;
     private final IRoleRepository roleRepository;
     private final GoogleAuth googleAuth;
-    private final AuthSubscriber authSubscriber;
     private final MailPublish mailPublish;
     private final RedisService redisService;
     private final AuthenticationManager authenticationManager;
@@ -229,7 +227,7 @@ public class AuthService {
         var user = userDetail.getUser();
         addMessageToAuthQueue(user.getUserName(), accessToken, refreshToken, (Collection<GrantedAuthority>) userDetail.getAuthorities());
         AuthResponseData authResponseData = AuthResponseData.builder()
-                .userId(user.getId())
+//                .userId(user.getId())
                 .urlAvatar(user.getUrlAvatar())
                 .fullName(user.getFullName())
                 .accessToken(accessToken)
@@ -238,7 +236,6 @@ public class AuthService {
                 .build();
         return authResponseData;
     }
-
     public ResponseEntity<String> sendMailResetPassword(String email) {
         String token = TokenGenerator.generateToken(150);
         mailPublish.pushEventToQueue(email, token);

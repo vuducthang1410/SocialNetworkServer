@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UuidGenerator;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -15,14 +17,16 @@ import java.sql.Timestamp;
 @NoArgsConstructor
 public class Search implements Serializable {
     @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE,generator = "search_seq")
-    @SequenceGenerator(name = "search_seq",sequenceName = "search_sequence")
-    private Long id;
-    @Column
+    @UuidGenerator(style = UuidGenerator.Style.RANDOM)
+    private String id;
+    @Column(name = "CREATE_TIME")
+    @CreationTimestamp
     private Timestamp timeSearch;
     @Column(name = "content",columnDefinition = "nvarchar(500)")
     private String content;
-    @ManyToOne(cascade = CascadeType.PERSIST,fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id_search")
-    private User userSearch;
+//    @ManyToOne(cascade = CascadeType.PERSIST,fetch = FetchType.LAZY)
+//    @JoinColumn(name = "SEARCH_BY")
+    @Column(name = "SEARCH_BY")
+    private String searchBy;
+
 }

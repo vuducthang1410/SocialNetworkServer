@@ -10,6 +10,7 @@ public class SecurityAuthority implements GrantedAuthority {
     private final UserRole userRole;
     @Override
     public String getAuthority() {
-        return userRole.getRoleUser().getRoleName();
+//        return userRole.getRoleUser().getRoleName();
+        return null;
     }
 }
