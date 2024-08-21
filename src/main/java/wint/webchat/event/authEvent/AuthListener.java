@@ -1,20 +1,16 @@
 package wint.webchat.event.authEvent;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.connection.Message;
 import org.springframework.data.redis.connection.MessageListener;
 import org.springframework.stereotype.Component;
-import wint.webchat.common.AuthEventType;
+import wint.webchat.common.Constant;
 import wint.webchat.mapper.JsonMapper;
-import wint.webchat.modelDTO.request.AuthLoginDTO;
 import wint.webchat.modelDTO.PubSubDTO.PubSubMessage;
 
 import java.io.IOException;
-import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 
 @Component
 @RequiredArgsConstructor
@@ -28,13 +24,13 @@ public class AuthListener implements MessageListener {
         System.out.println(data);
         try {
             var dataObject=jsonMapper.jsonPubToObject(message.getBody(),PubSubMessage.class);
-            if(dataObject.getEvenType().equalsIgnoreCase(AuthEventType.SAVE_TOKEN_LOGIN.getGetAuthEventType())){
+            if(dataObject.getEvenType().equalsIgnoreCase(Constant.AuthEventType.SAVE_TOKEN_LOGIN.getGetAuthEventType())){
                 authSubscriber.saveTokenToServer((LinkedHashMap<String, Object>) dataObject.getPayload());
-            }else if(dataObject.getEvenType().equalsIgnoreCase(AuthEventType.REFRESH_ACCESS_TOKEN.getGetAuthEventType())){
+            }else if(dataObject.getEvenType().equalsIgnoreCase(Constant.AuthEventType.REFRESH_ACCESS_TOKEN.getGetAuthEventType())){
                 authSubscriber.saveNewAccessTokenToServer((LinkedHashMap<String, Object>) dataObject.getPayload());
-            } else if (dataObject.getEvenType().equalsIgnoreCase(AuthEventType.LOGOUT.getGetAuthEventType())) {
+            } else if (dataObject.getEvenType().equalsIgnoreCase(Constant.AuthEventType.LOGOUT.getGetAuthEventType())) {
                 authSubscriber.deleteRefreshToken((LinkedHashMap<String, Object>) dataObject.getPayload());
-            } else if (dataObject.getEvenType().equalsIgnoreCase(AuthEventType.LOGOUT_ALL.getGetAuthEventType())) {
+            } else if (dataObject.getEvenType().equalsIgnoreCase(Constant.AuthEventType.LOGOUT_ALL.getGetAuthEventType())) {
                 authSubscriber.deleteAllTokenByUsername((LinkedHashMap<String, Object>) dataObject.getPayload());
             }
             System.out.println(dataObject);

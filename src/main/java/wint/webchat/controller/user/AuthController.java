@@ -8,10 +8,9 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.web.csrf.CsrfToken;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import wint.webchat.common.RedisKeys;
+import wint.webchat.common.Constant;
 import wint.webchat.modelDTO.reponse.ApiResponse;
 import wint.webchat.modelDTO.reponse.AuthResponseData;
 import wint.webchat.modelDTO.request.AuthLoginDTO;
@@ -30,7 +29,6 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
-
     @PostMapping(value = "/signUp")
     public ResponseEntity<String> register(@Valid @RequestBody AuthSignUpDTO authSignUpDTO,
                                            BindingResult bindingResult) {
@@ -52,7 +50,7 @@ public class AuthController {
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
             Optional<Cookie> cookie = Arrays.stream(cookies)
-                    .filter(r -> r.getName().equals(RedisKeys.REFRESH_TOKEN.getValueRedisKey()))
+                    .filter(r -> r.getName().equals(Constant.RedisKeys.REFRESH_TOKEN.getValueRedisKey()))
                     .findFirst();
             if (cookie.isPresent()) {
                 return authService.refreshToken(cookie.get().getValue());
@@ -60,14 +58,12 @@ public class AuthController {
                 return ApiResponse.<Map<String, String>>builder()
                         .code(HttpStatus.FORBIDDEN.value())
                         .error(Map.of("cookie", "not found refresh token in cookie"))
-                        .message("error")
                         .build();
             }
         }
         return ApiResponse.<Map<String, String>>builder()
                 .code(HttpStatus.BAD_REQUEST.value())
                 .error(Map.of("cookie", "not found cookie"))
-                .message("error")
                 .build();
     }
 
@@ -80,7 +76,6 @@ public class AuthController {
     public ApiResponse<String> resetPassword(@Valid @RequestBody(required = false) ResetPasswordDTO resetPasswordDTO, BindingResult bindingResult) {
         if (resetPasswordDTO == null) {
             return ApiResponse.<String>builder()
-                    .success(false)
                     .code(HttpStatus.BAD_REQUEST.value())
                     .error(Map.of("Object", "Request body is missing or empty"))
                     .build();
@@ -91,7 +86,6 @@ public class AuthController {
             return ApiResponse.<String>builder()
                     .data("")
                     .error(listError)
-                    .success(false)
                     .code(400)
                     .build();
         }

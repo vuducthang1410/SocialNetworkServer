@@ -24,17 +24,13 @@ public class ConversationServiceImpl implements IConversationService{
         List<ConversationMessageDTO> result=iConversationRepository.getListConversation(id,startGetter,amountGet);
         if(result.isEmpty()){
             return ApiResponse.<List<ConversationMessageDTO>>builder()
-                    .success(true)
                     .code(HttpStatus.OK.value())
                     .error(Collections.emptyMap())
-                    .message("Not found any conversation ")
                     .build();
         }
         return ApiResponse.<List<ConversationMessageDTO>>builder()
-                .success(true)
                 .code(HttpStatus.OK.value())
                 .error(Collections.emptyMap())
-                .message("Successfully")
                 .data(result)
                 .build();
     }

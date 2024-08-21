@@ -6,7 +6,7 @@ import org.modelmapper.PropertyMap;
 import org.springframework.stereotype.Component;
 import wint.webchat.entities.user.User;
 import wint.webchat.modelDTO.reponse.AuthResponseData;
-import wint.webchat.security.CustomUserDetail;
+//import wint.webchat.security.CustomUserDetail;
 
 @Component
 @RequiredArgsConstructor

@@ -45,17 +45,13 @@ public class MessageServiceImpl implements IMessageService {
                 .collect(Collectors.toList());
         if (result.isEmpty() || result.size() < amount) {
             return ApiResponse.<List<MessageDTO>>builder()
-                    .success(true)
                     .error(Collections.emptyMap())
-                    .message("No data in next request")
                     .data(result)
                     .code(HttpStatus.NO_CONTENT.value())
                     .build();
         }
         return ApiResponse.<List<MessageDTO>>builder()
-                .success(true)
                 .error(Collections.emptyMap())
-                .message("successfully")
                 .data(result)
                 .code(HttpStatus.OK.value())
                 .build();

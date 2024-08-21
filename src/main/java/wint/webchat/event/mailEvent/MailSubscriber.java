@@ -6,7 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import wint.webchat.common.MailEventType;
+import wint.webchat.common.Constant;
 import wint.webchat.mapper.JsonMapper;
 import wint.webchat.modelDTO.PubSubDTO.MailResetPasswordDTO;
 import wint.webchat.redis.RedisService;
@@ -28,7 +28,7 @@ public class MailSubscriber {
     @Async
 //    @Scheduled(fixedDelay = 1000)
     public void sendEmail() throws UnsupportedEncodingException, JsonProcessingException {
-        String jsonData = (String) redisTemplate.opsForList().rightPop(MailEventType.SEND_MAIL_RESET_PASSWORD.getGetMailEventType());
+        String jsonData = (String) redisTemplate.opsForList().rightPop(Constant.MailEventType.SEND_MAIL_RESET_PASSWORD.getGetMailEventType());
         if (jsonData != null) {
             MailResetPasswordDTO data=jsonMapper.jsonReidisToObject(jsonData,MailResetPasswordDTO.class);
             String urlResetPassword = URL_RESET_PASSWORD + "?authorization=" + data.getToken()+"&&email="+data.getEmail();

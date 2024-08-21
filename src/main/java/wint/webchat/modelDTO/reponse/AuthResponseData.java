@@ -17,8 +17,9 @@ import java.util.Collection;
 @AllArgsConstructor
 @NoArgsConstructor
 public class AuthResponseData {
-    private Long userId;
-    private String fullName;
+    private String userId;
+    private String firstName;
+    private String lastName;
     private String urlAvatar;
     private String message;
     private Collection<GrantedAuthority> role;

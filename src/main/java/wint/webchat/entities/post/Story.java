@@ -1,9 +1,6 @@
 package wint.webchat.entities.post;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
@@ -18,6 +15,7 @@ import java.util.UUID;
 public class Story implements Serializable {
     @Id
     @Column(name = "ID")
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     @Column(name="URL_BACKGROUND_STORY",length = 500)
     private String urlBackgroundStory;

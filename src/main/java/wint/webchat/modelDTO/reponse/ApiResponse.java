@@ -12,9 +12,10 @@ import java.util.TreeMap;
 @AllArgsConstructor
 @Builder
 public class ApiResponse<T> {
-    private boolean success;
     private T data;
-    private String message;
     private int code;
     private Map<String,String> error=new TreeMap<>();
+    public static<T>ApiResponse<T>createResponse(){
+        return null;
+    };
 }

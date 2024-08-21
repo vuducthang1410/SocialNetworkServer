@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MaxUploadSizeExceededException;
 import wint.webchat.entities.user.User;
-import wint.webchat.security.CustomUserDetail;
+//import wint.webchat.security.CustomUserDetail;
 
 @ControllerAdvice
 public class GlobalController {

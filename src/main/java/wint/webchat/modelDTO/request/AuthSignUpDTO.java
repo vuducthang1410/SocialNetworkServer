@@ -14,8 +14,9 @@ import org.springframework.lang.NonNull;
 @AllArgsConstructor
 public class AuthSignUpDTO {
     @NotBlank
-    @Size(min = 5,message = "fullname must be longer than 5 characters")
-    private String fullname;
+    private String firstname;
+    @NotBlank
+    private String lastname;
     @NotBlank(message = "username must not be blank")
     @Size(min = 5,message = "username must be longer than 5 characters")
     private String username;

@@ -15,5 +15,5 @@ public interface IUserService {
 
     ApiResponse<ProfileDTO> getProfile(long id);
 
-    ApiResponse<String> updateProfile(Long id, MultipartFile avatar, String fullName, String address, Date dateOfBirth, String describer, String email);
+    ApiResponse<String> updateProfile(Long id, MultipartFile avatar, String firstName,String lastName, String address, Date dateOfBirth, String describer, String email);
 }

@@ -19,7 +19,7 @@ import java.sql.Date;
 @Table(name = "tbl_user")
 public class User implements Serializable {
     @Id
-    @UuidGenerator(style = UuidGenerator.Style.RANDOM)
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     @Column(name = "USER_NAME", nullable = false, length = 50)
     private String userName;
@@ -30,8 +30,10 @@ public class User implements Serializable {
     @Column(name = "Email", nullable = true, length = 50)
     private String email;
     @Basic
-    @Column(name = "FULL_NAME", nullable = true, columnDefinition = "nvarchar(255)")
-    private String fullName;
+    @Column(name = "FIRST_NAME", nullable = true, columnDefinition = "nvarchar(255)")
+    private String firstName;
+    @Column(name = "LAST_NAME", nullable = true, columnDefinition = "nvarchar(255)")
+    private String lastName;
     @Basic
     @Column(name = "URL_AVATAR", nullable = true, length = 300)
     private String urlAvatar;
@@ -72,28 +74,30 @@ public class User implements Serializable {
     @CreationTimestamp
     private String createTime;
 
-    public User(String userName, String passwordEncrypt, String fullName, String provide) {
+    public User(String userName, String passwordEncrypt, String firstName,String lastName, String provide) {
         this.userName = userName;
         this.passwordEncrypt = passwordEncrypt;
-        this.fullName = fullName;
+        this.firstName = firstName;
+        this.lastName=lastName;
         this.isDelete = false;
         this.accessFailedCount = 0;
         this.emailConfirmed = false;
         this.isOnline = true;
         this.statusAccount = true;
         this.describe = "";
-        this.email = "email";
+        this.email = "";
         this.urlAvatar = "https://lh3.google.com/u/0/d/1ZffstBnAUUI1LvpVRTHsYqgpkDmRDBLB";
         this.urlImgCover = "";
         this.isAccountNonLocked = true;
         this.provide = provide;
     }
 
-    public User(String userName, String passwordEncrypt, String fullName,
+    public User(String userName, String passwordEncrypt, String firstName,String lastName,
                 String email, String urlAvatar, String provide) {
         this.userName = userName;
         this.passwordEncrypt = passwordEncrypt;
-        this.fullName = fullName;
+        this.firstName= firstName;
+        this.lastName=lastName;
         this.isDelete = false;
         this.accessFailedCount = 0;
         this.emailConfirmed = false;

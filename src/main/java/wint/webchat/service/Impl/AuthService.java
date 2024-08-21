@@ -6,19 +6,16 @@ import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import wint.webchat.common.AccountType;
-import wint.webchat.common.AuthEventType;
-import wint.webchat.common.RedisKeys;
-import wint.webchat.common.StatusCode;
+import org.springframework.transaction.annotation.Transactional;
+
+import wint.webchat.common.Constant;
 import wint.webchat.entities.user.Role;
 import wint.webchat.entities.user.User;
 import wint.webchat.event.authEvent.AuthPublish;
@@ -39,7 +36,7 @@ import wint.webchat.redis.RedisService;
 import wint.webchat.repositories.IRoleRepository;
 import wint.webchat.repositories.IUserRepositoryJPA;
 import wint.webchat.repositories.Impl.UserRoleRepositoryImpl;
-import wint.webchat.security.CustomUserDetail;
+import wint.webchat.repositories.RoleRepositoryJPA;
 import wint.webchat.util.TokenGenerator;
 
 import java.util.*;
@@ -56,49 +53,47 @@ public class AuthService {
     private final GoogleAuth googleAuth;
     private final MailPublish mailPublish;
     private final RedisService redisService;
-    private final AuthenticationManager authenticationManager;
     private final AuthPublish authPublish;
     private final JsonMapper jsonMapper;
+    private final RoleRepositoryJPA roleRepositoryJPA;
     private final AuthRedisService authRedisService;
-
+    private static final Logger log= LoggerFactory.getLogger(AuthService.class);
     public ApiResponse<AuthResponseData> signIn(AuthLoginDTO authLoginDTO, HttpServletResponse response) {
         try {
-            Authentication authentication = UsernamePasswordAuthenticationToken.unauthenticated(authLoginDTO.getUsername(), authLoginDTO.getPassword());
-            Authentication authenticationResponse = authenticationManager.authenticate(authentication);
-            CustomUserDetail obj = (CustomUserDetail) authenticationResponse.getPrincipal();
-            return ApiResponse.<AuthResponseData>builder()
-                    .data(getResponseAuthData(obj, response))
-                    .success(true)
-                    .code(200)
-                    .message("Login success")
-                    .error(Map.of())
-                    .build();
-        } catch (AuthenticationException ae) {
-            return ApiResponse.<AuthResponseData>builder()
-                    .data(null)
-                    .message("Login fail")
-                    .code(400)
-                    .error(Map.of("password", "Password isn't correct"))
-                    .success(false)
-                    .build();
+            Optional<User> userOptional=userRepositoryJPA.findUsersByUserName(authLoginDTO.getUsername());
+            if(userOptional.isPresent()){
+                User user=userOptional.get();
+                boolean success=passwordEncoder.matches(authLoginDTO.getPassword(),user.getPasswordEncrypt());
+                if(success){
+                    return ApiResponse.<AuthResponseData>builder()
+                            .data(getResponseAuthData(user, response))
+                            .code(200)
+                            .error(Map.of())
+                            .build();
+                }
+            }
         } catch (Exception e) {
+            log.error("Xảy ra ngoại lệ khi thưc hiện login! Root cause: {}",e.getMessage());
             return ApiResponse.<AuthResponseData>builder()
                     .data(null)
-                    .message("Login fail")
                     .code(400)
                     .error(Map.of("server", "server error"))
-                    .success(false)
                     .build();
         }
+        return ApiResponse.<AuthResponseData>builder()
+                .code(200)
+                .error(Map.of("failure","Username or password isn't not correct"))
+                .build();
     }
-
+@Transactional
     public ResponseEntity<String> signUp(AuthSignUpDTO authSignUp) {
         Optional<User> userCheck = userRepositoryJPA.findUsersByUserName(authSignUp.getUsername());
         if (userCheck.isEmpty()) {
             User user = new User(authSignUp.getUsername()
                     , passwordEncoder.encode(authSignUp.getPassword())
-                    , authSignUp.getFullname(),
-                    AccountType.SYSTEM.getAccountType()
+                    , authSignUp.getFirstname(),
+                    authSignUp.getLastname(),
+                    Constant.AccountType.SYSTEM.getAccountType()
             );
             List<Role> list = roleRepository.findByRoleName("ROLE_USER").stream().collect(Collectors.toList());
             if (list.isEmpty()) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Server error");
@@ -128,16 +123,14 @@ public class AuthService {
                             .messageId("")
                             .timeMessageCreate(new Date().getTime())
                             .attributes(Map.of())
-                            .evenType(AuthEventType.REFRESH_ACCESS_TOKEN.getGetAuthEventType())
+                            .evenType(Constant.AuthEventType.REFRESH_ACCESS_TOKEN.getGetAuthEventType())
                             .payload(authRedisDTO)
                             .build();
                     authPublish.publishEvent(jsonMapper.objectToJson(pubSubMessage));
                     return ApiResponse.<Map<String, String>>builder()
                             .error(Map.of())
-                            .code(StatusCode.SUCCESS_CODE)
-                            .message("Successfully")
+                            .code(Constant.StatusCode.SUCCESS_CODE)
                             .data(Map.of("accessToken", newAccessToken))
-                            .success(true)
                             .build();
                 } else {
                     throw new UnsupportedJwtException("");
@@ -147,26 +140,20 @@ public class AuthService {
         } catch (ExpiredJwtException eje) {
             return ApiResponse.<Map<String, String>>builder()
                     .error(Map.of("refreshToken", "REFRESH_TOKEN_EXPIRATION"))
-                    .code(StatusCode.REFRESH_TOKEN_EXPIRATION_CODE)
-                    .message("Failure")
+                    .code(Constant.StatusCode.REFRESH_TOKEN_EXPIRATION_CODE)
                     .data(Map.of())
-                    .success(false)
                     .build();
         } catch (UnsupportedJwtException uje) {
             return ApiResponse.<Map<String, String>>builder()
                     .error(Map.of("refreshToken", "REFRESH_TOKEN_UNSUPPORTED"))
-                    .code(StatusCode.TOKEN_NOT_VALID_CODE)
-                    .message("Failure")
+                    .code(Constant.StatusCode.TOKEN_NOT_VALID_CODE)
                     .data(Map.of())
-                    .success(false)
                     .build();
         } catch (Exception e) {
             return ApiResponse.<Map<String, String>>builder()
                     .error(Map.of("refreshToken", "SERVER ERROR"))
-                    .code(StatusCode.SERVER_ERROR)
-                    .message("Failure")
+                    .code(Constant.StatusCode.SERVER_ERROR)
                     .data(Map.of())
-                    .success(false)
                     .build();
         }
     }
@@ -178,28 +165,24 @@ public class AuthService {
             Optional<User> userFromDb = userRepositoryJPA.findUsersByUserName(userInfo.getEmail());
             if (userFromDb.isEmpty()) {
                 User userNew = new User(userInfo.getEmail(), passwordEncoder.encode(""),
-                        userInfo.getName(), userInfo.getEmail(), userInfo.getPicture(), AccountType.GOOGLE.getAccountType());
+                        userInfo.getName(),"", userInfo.getEmail(), userInfo.getPicture(), Constant.AccountType.GOOGLE.getAccountType());
                 List<Role> list = roleRepository.findByRoleName("ROLE_USER").stream().collect(Collectors.toList());
                 if (list.isEmpty())
                     throw new Exception();
                 userRoleRepository.addRoleForUser(userNew, list);
                 userFromDb = Optional.of(userNew);
             }
-            CustomUserDetail userDetail = userFromDb.map(CustomUserDetail::new).orElseThrow();
+//            CustomUserDetail userDetail = userFromDb.map(CustomUserDetail::new).orElseThrow();
             return ApiResponse.<AuthResponseData>builder()
-                    .data(getResponseAuthData(userDetail, response))
-                    .success(true)
+//                    .data(getResponseAuthData(userDetail, response))
                     .code(200)
-                    .message("Login success")
                     .error(Map.of())
                     .build();
         } catch (Exception e) {
             return ApiResponse.<AuthResponseData>builder()
                     .data(null)
-                    .message("Login fail")
                     .code(400)
                     .error(Map.of("server", "server error"))
-                    .success(false)
                     .build();
         }
     }
@@ -216,22 +199,28 @@ public class AuthService {
         }
     }
 
-    private AuthResponseData getResponseAuthData(CustomUserDetail userDetail, HttpServletResponse response) {
-        var accessToken = jwtService.generateAccessToken(new HashMap<>(), userDetail.getUsername(), (Collection<GrantedAuthority>) userDetail.getAuthorities());
-        var refreshToken = jwtService.generateRefreshToken(userDetail.getUsername());
-        Cookie cookie = new Cookie(RedisKeys.REFRESH_TOKEN.getValueRedisKey(), refreshToken);
+    private AuthResponseData getResponseAuthData(User user, HttpServletResponse response) {
+        Collection<GrantedAuthority> listAuthorities=roleRepositoryJPA.findRoleByUsername(user.getUserName()).stream().map(e->new GrantedAuthority() {
+            @Override
+            public String getAuthority() {
+                return e.getRoleName();
+            }
+        }).collect(Collectors.toList());
+        var accessToken = jwtService.generateAccessToken(new HashMap<>(), user.getUserName(),listAuthorities);
+        var refreshToken = jwtService.generateRefreshToken(user.getUserName());
+        Cookie cookie = new Cookie(Constant.RedisKeys.REFRESH_TOKEN.getValueRedisKey(), refreshToken);
         cookie.setHttpOnly(true);
         cookie.setSecure(false);
         cookie.setMaxAge(86400000);
         response.addCookie(cookie);
-        var user = userDetail.getUser();
-        addMessageToAuthQueue(user.getUserName(), accessToken, refreshToken, (Collection<GrantedAuthority>) userDetail.getAuthorities());
+        addMessageToAuthQueue(user.getUserName(), accessToken, refreshToken, listAuthorities);
         AuthResponseData authResponseData = AuthResponseData.builder()
-//                .userId(user.getId())
+                .userId(user.getId())
                 .urlAvatar(user.getUrlAvatar())
-                .fullName(user.getFullName())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
                 .accessToken(accessToken)
-                .role((Collection<GrantedAuthority>) userDetail.getAuthorities())
+                .role((Collection<GrantedAuthority>) listAuthorities)
                 .message("Login success")
                 .build();
         return authResponseData;
@@ -250,14 +239,12 @@ public class AuthService {
                 return ApiResponse.<String>builder()
                         .data("Reset password is successfully")
                         .error(Map.of())
-                        .success(true)
                         .code(200)
                         .build();
             } else {
                 return ApiResponse.<String>builder()
                         .data("")
                         .error(Map.of("AuthorizationToken", "Token is not valid"))
-                        .success(false)
                         .code(400)
                         .build();
             }
@@ -265,20 +252,19 @@ public class AuthService {
             return ApiResponse.<String>builder()
                     .data("")
                     .error(Map.of("Server", "Server is error"))
-                    .success(false)
                     .code(400)
                     .build();
         }
     }
     public void logout(String refreshToken) {
-        publishLogoutEvent(refreshToken, AuthEventType.LOGOUT);
+        publishLogoutEvent(refreshToken, Constant.AuthEventType.LOGOUT);
     }
 
     public void logoutAll(String refreshToken) {
-        publishLogoutEvent(refreshToken, AuthEventType.LOGOUT_ALL);
+        publishLogoutEvent(refreshToken, Constant.AuthEventType.LOGOUT_ALL);
     }
 
-    private void publishLogoutEvent(String refreshToken, AuthEventType eventType) {
+    private void publishLogoutEvent(String refreshToken, Constant.AuthEventType eventType) {
         String username = jwtService.getUsernameFromToken(refreshToken);
         AuthRedisDTO authRedisDTO = AuthRedisDTO.builder()
                 .username(username)
@@ -318,7 +304,7 @@ public class AuthService {
                 .timeMessageCreate(new Date().getTime())
                 .payload(authRedisDTO)
                 .attributes(Map.of())
-                .evenType(AuthEventType.SAVE_TOKEN_LOGIN.getGetAuthEventType())
+                .evenType(Constant.AuthEventType.SAVE_TOKEN_LOGIN.getGetAuthEventType())
                 .build();
         try {
             authPublish.publishEvent(jsonMapper.objectToJson(pubSubMessage));

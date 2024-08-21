@@ -18,6 +18,7 @@ import java.util.List;
 @NoArgsConstructor
 public class Message implements Serializable {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
     @Column(name = "CREATE_TIME")
     @CreationTimestamp

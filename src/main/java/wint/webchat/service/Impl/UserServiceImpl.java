@@ -44,16 +44,12 @@ public class UserServiceImpl implements IUserService {
         var listUser = userRepository.getProfile(id);
         if (listUser.isEmpty()) {
             return ApiResponse.<ProfileDTO>builder()
-                    .success(true)
-                    .message("")
                     .error(Map.of("message", "Can't find user with id=" + id))
                     .code(HttpStatus.NOT_FOUND.value())
                     .build();
         }
         return ApiResponse.<ProfileDTO>builder()
-                .success(true)
                 .error(Map.of())
-                .message("Successfully retrieved profile")
                 .code(HttpStatus.OK.value())
                 .data(listUser.get(0))
                 .build();
@@ -62,7 +58,7 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
     @Modifying
-    public ApiResponse<String> updateProfile(Long id, MultipartFile avatar, String fullName, String address, Date dateOfBirth, String describe, String email) {
+    public ApiResponse<String> updateProfile(Long id, MultipartFile avatar, String fistName,String lastName, String address, Date dateOfBirth, String describe, String email) {
         Optional<User> userOptional = userRepositoryJPA.findUsersById(id);
         if (userOptional.isPresent()) {
             User user = userOptional.get();
@@ -77,22 +73,19 @@ public class UserServiceImpl implements IUserService {
             }
             user.setEmail(email);
             user.setDescribe(describe);
-            user.setFullName(fullName);
+            user.setFirstName(fistName);
+            user.setLastName(lastName);
             user.setIdAddress(address);
             userRepository.update(user);
             return ApiResponse.<String>builder()
-                    .message("Update successfully")
                     .code(HttpStatus.OK.value())
                     .error(Map.of())
                     .data("")
-                    .success(true)
                     .build();
         }
         return ApiResponse.<String>builder()
-                .message("failure")
                 .code(HttpStatus.BAD_REQUEST.value())
                 .error(Map.of("Not found", "Not found user"))
-                .success(false)
                 .data("")
                 .build();
     }

@@ -26,16 +26,16 @@ public class AccountController {
     public ApiResponse<ProfileDTO> getProfile(@RequestParam("id") Long idUser) {
         return userService.getProfile(idUser);
     }
-
     @PostMapping(value = "/update-profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
     public ApiResponse<String> updateProfile(
             @RequestParam("id") String id,
             @RequestParam(value = "avatar", required = false) MultipartFile avatar,
-            @RequestParam("fullName") String fullName,
+            @RequestParam("lastName") String lastName,
             @RequestParam("address") String address,
             @RequestParam(value = "dateOfBirth", required = false) String dateOfBirthString,
             @RequestParam("describe") String describe,
-            @RequestParam("email") String email
+            @RequestParam("email") String email,
+            @RequestParam("firstName")String firstName
     ) {
         Long userId = Long.parseLong(id);
         Date dateOfBirth = null;
@@ -45,14 +45,12 @@ public class AccountController {
                 dateOfBirth = dateFormat.parse(dateOfBirthString);
             } catch (ParseException e) {
                 return ApiResponse.<String>builder()
-                        .message("format date ís yyyy-dd-MM")
                         .code(HttpStatus.BAD_REQUEST.value())
                         .error(Map.of("date format", "required date format yyyy-dd-MM"))
-                        .success(false)
                         .build();
             }
         }
-        return userService.updateProfile(userId, avatar, fullName, address, dateOfBirth, describe, email);
+        return userService.updateProfile(userId, avatar, firstName,lastName, address, dateOfBirth, describe, email);
 
     }
 

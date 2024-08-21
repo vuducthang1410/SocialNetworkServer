@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
-import wint.webchat.security.CustomUserDetail;
+//import wint.webchat.security.CustomUserDetail;
 
 import java.security.Key;
 import java.util.*;
@@ -63,10 +63,10 @@ public class JwtServiceImpl {
         Claims claims = extractAllClaims(token);
         return claimsTFunction.apply(claims);
     }
-    public boolean isTokenValidUserName(String token, CustomUserDetail customUserDetail) {
-        final String username = getUsernameFromToken(token);
-        return (username.equals(customUserDetail.getUsername())) ;
-    }
+//    public boolean isTokenValidUserName(String token, CustomUserDetail customUserDetail) {
+//        final String username = getUsernameFromToken(token);
+//        return (username.equals(customUserDetail.getUsername())) ;
+//    }
 
     public boolean isTokenExpiration(String token) {
         return extractClaims(token, Claims::getExpiration).before(new Date());

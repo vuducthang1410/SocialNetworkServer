@@ -31,7 +31,6 @@ public class ConversationController {
             @RequestParam int amount){
         if(start<0 || amount<1){
             return ApiResponse.<List<ConversationMessageDTO>>builder()
-                    .message("failure")
                     .code(HttpStatus.BAD_REQUEST.value())
                     .error(Map.of("request param","start and amount require >=0 "))
                     .build();

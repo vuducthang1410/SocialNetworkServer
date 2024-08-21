@@ -53,8 +53,6 @@ public class FriendServiceImpl implements IFriendService {
         if (!friendList.isEmpty()) {
             Friend friend = friendList.stream().findFirst().get();
             if (friend.getIsAccept()) return ApiResponse.<String>builder()
-                    .message("You are already friends")
-                    .success(false)
                     .code(200)
                     .error(Map.of("Refuse", "already friends"))
                     .build();
@@ -79,8 +77,6 @@ public class FriendServiceImpl implements IFriendService {
 //                            .build();
                 } else {
                     return ApiResponse.<String>builder()
-                            .message("You have been rejected so you cannot repeat that action")
-                            .success(false)
                             .code(200)
                             .error(Map.of("Refuse", "already friends"))
                             .build();
@@ -131,15 +127,11 @@ public class FriendServiceImpl implements IFriendService {
             friend.setIsRefuse(false);
             friendRepository.add(friend);
             return ApiResponse.<String>builder()
-                    .message("Successfully")
-                    .success(true)
                     .code(200)
                     .error(Collections.emptyMap())
                     .build();
         }
         return ApiResponse.<String>builder()
-                .message("Not found user")
-                .success(false)
                 .code(200)
                 .error(Map.of("Failure", "not found user"))
                 .build();
@@ -158,15 +150,11 @@ public class FriendServiceImpl implements IFriendService {
 //            friend.setTimeSend(new Timestamp(new Date().getTime()));
             friendRepository.update(friend);
             return ApiResponse.<String>builder()
-                    .message("Successfully")
-                    .success(true)
                     .code(200)
                     .error(Collections.emptyMap())
                     .build();
         }
         return ApiResponse.<String>builder()
-                .message("Not found friend")
-                .success(false)
                 .code(200)
                 .error(Map.of("Failure", "not found friend"))
                 .build();
@@ -190,15 +178,11 @@ public class FriendServiceImpl implements IFriendService {
 //            friend.setTimeSend(new Timestamp(new Date().getTime()));
             friendRepository.update(friend);
             return ApiResponse.<String>builder()
-                    .message("Successfully")
-                    .success(true)
                     .code(200)
                     .error(Collections.emptyMap())
                     .build();
         }
         return ApiResponse.<String>builder()
-                .message("Not found friend")
-                .success(false)
                 .code(200)
                 .error(Map.of("Failure", "not found invitation friend"))
                 .build();
@@ -217,15 +201,11 @@ public class FriendServiceImpl implements IFriendService {
 //            friend.setTimeSend(new Timestamp(new Date().getTime()));
             friendRepository.update(friend);
             return ApiResponse.<String>builder()
-                    .message("Successfully")
-                    .success(true)
                     .code(200)
                     .error(Collections.emptyMap())
                     .build();
         }
         return ApiResponse.<String>builder()
-                .message("Not found friend")
-                .success(false)
                 .code(200)
                 .error(Map.of("Failure", "not found invitation friend"))
                 .build();
@@ -236,17 +216,13 @@ public class FriendServiceImpl implements IFriendService {
         if (listFriend.isEmpty() || listFriend.size() < amount) {
             return ApiResponse.<List<FriendDTO>>builder()
                     .data(listFriend)
-                    .message("No friend data found in next request")
                     .code(HttpStatus.NO_CONTENT.value())
-                    .success(true)
                     .error(Collections.emptyMap())
                     .build();
         } else {
             return ApiResponse.<List<FriendDTO>>builder()
                     .data(listFriend)
-                    .message("Request successful")
                     .code(HttpStatus.OK.value())
-                    .success(true)
                     .error(Collections.emptyMap())
                     .build();
         }
@@ -263,17 +239,13 @@ public class FriendServiceImpl implements IFriendService {
         if (listFriend.isEmpty() || listFriend.size() < amount) {
             return ApiResponse.<List<String>>builder()
                     .data(list)
-                    .message("No friend data found in next request")
                     .code(HttpStatus.NO_CONTENT.value())
-                    .success(true)
                     .error(Collections.emptyMap())
                     .build();
         } else {
             return ApiResponse.<List<String>>builder()
                     .data(list)
-                    .message("Request successful")
                     .code(HttpStatus.OK.value())
-                    .success(true)
                     .error(Collections.emptyMap())
                     .build();
         }
