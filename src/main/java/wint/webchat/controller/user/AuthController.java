@@ -39,7 +39,7 @@ public class AuthController {
         return authService.signUp(authSignUpDTO);
     }
 
-    @PostMapping("/signIn")
+    @PostMapping("/sign-in")
     public ApiResponse<AuthResponseData> signIn(@RequestBody AuthLoginDTO signUpRequest,
                                                 HttpServletResponse response) {
         return authService.signIn(signUpRequest, response);

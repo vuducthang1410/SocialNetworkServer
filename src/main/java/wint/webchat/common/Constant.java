@@ -82,4 +82,8 @@ public class Constant {
         LOGOUT_ALL("LOGOUT_ALL");
         private String getAuthEventType;
     }
+    public interface STATUS{
+        public static final String YES="Y";
+        public static final String NO="N";
+    }
 }

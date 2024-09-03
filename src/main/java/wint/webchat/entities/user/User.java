@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
+import wint.webchat.common.Constant;
 
 import java.io.Serializable;
 import java.sql.Date;
@@ -73,6 +74,8 @@ public class User implements Serializable {
     @Column(name = "CREATE_TIME")
     @CreationTimestamp
     private String createTime;
+    @Column(name = "IS_COMPLETE", columnDefinition = "VARCHAR(5) DEFAULT 'N'")
+    private String isComplete;
 
     public User(String userName, String passwordEncrypt, String firstName,String lastName, String provide) {
         this.userName = userName;
@@ -90,6 +93,7 @@ public class User implements Serializable {
         this.urlImgCover = "";
         this.isAccountNonLocked = true;
         this.provide = provide;
+        this.isComplete= Constant.STATUS.NO;
     }
 
     public User(String userName, String passwordEncrypt, String firstName,String lastName,
@@ -109,5 +113,6 @@ public class User implements Serializable {
         this.urlImgCover = "";
         this.isAccountNonLocked = true;
         this.provide = provide;
+        this.isComplete=Constant.STATUS.NO;
     }
 }

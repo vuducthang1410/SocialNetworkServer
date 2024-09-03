@@ -21,7 +21,6 @@ public class AuthResponseData {
     private String firstName;
     private String lastName;
     private String urlAvatar;
-    private String message;
-    private Collection<GrantedAuthority> role;
+    private String isComplete;
     private String accessToken;
 }

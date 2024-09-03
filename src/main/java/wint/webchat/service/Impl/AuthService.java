@@ -137,19 +137,8 @@ public class AuthService {
                 }
             } else
                 throw new Exception();
-        } catch (ExpiredJwtException eje) {
-            return ApiResponse.<Map<String, String>>builder()
-                    .error(Map.of("refreshToken", "REFRESH_TOKEN_EXPIRATION"))
-                    .code(Constant.StatusCode.REFRESH_TOKEN_EXPIRATION_CODE)
-                    .data(Map.of())
-                    .build();
-        } catch (UnsupportedJwtException uje) {
-            return ApiResponse.<Map<String, String>>builder()
-                    .error(Map.of("refreshToken", "REFRESH_TOKEN_UNSUPPORTED"))
-                    .code(Constant.StatusCode.TOKEN_NOT_VALID_CODE)
-                    .data(Map.of())
-                    .build();
         } catch (Exception e) {
+            log.error("Xảy ra ngoại lệ khi thưc hiện refresh token! Root cause: {}",e.getMessage());
             return ApiResponse.<Map<String, String>>builder()
                     .error(Map.of("refreshToken", "SERVER ERROR"))
                     .code(Constant.StatusCode.SERVER_ERROR)
@@ -170,11 +159,8 @@ public class AuthService {
                 if (list.isEmpty())
                     throw new Exception();
                 userRoleRepository.addRoleForUser(userNew, list);
-                userFromDb = Optional.of(userNew);
             }
-//            CustomUserDetail userDetail = userFromDb.map(CustomUserDetail::new).orElseThrow();
             return ApiResponse.<AuthResponseData>builder()
-//                    .data(getResponseAuthData(userDetail, response))
                     .code(200)
                     .error(Map.of())
                     .build();
@@ -220,8 +206,7 @@ public class AuthService {
                 .firstName(user.getFirstName())
                 .lastName(user.getLastName())
                 .accessToken(accessToken)
-                .role((Collection<GrantedAuthority>) listAuthorities)
-                .message("Login success")
+                .isComplete(user.getIsComplete())
                 .build();
         return authResponseData;
     }
