@@ -14,6 +14,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 
 
 @RestController
@@ -26,32 +28,10 @@ public class AccountController {
     public ApiResponse<ProfileDTO> getProfile(@RequestParam("id") Long idUser) {
         return userService.getProfile(idUser);
     }
-    @PostMapping(value = "/update-profile", consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
-    public ApiResponse<String> updateProfile(
-            @RequestParam("id") String id,
-            @RequestParam(value = "avatar", required = false) MultipartFile avatar,
-            @RequestParam("lastName") String lastName,
-            @RequestParam("address") String address,
-            @RequestParam(value = "dateOfBirth", required = false) String dateOfBirthString,
-            @RequestParam("describe") String describe,
-            @RequestParam("email") String email,
-            @RequestParam("firstName")String firstName
-    ) {
-        Long userId = Long.parseLong(id);
-        Date dateOfBirth = null;
-        if (dateOfBirthString != null) {
-            try {
-                SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-dd-MM");
-                dateOfBirth = dateFormat.parse(dateOfBirthString);
-            } catch (ParseException e) {
-                return ApiResponse.<String>builder()
-                        .code(HttpStatus.BAD_REQUEST.value())
-                        .error(Map.of("date format", "required date format yyyy-dd-MM"))
-                        .build();
-            }
-        }
-        return userService.updateProfile(userId, avatar, firstName,lastName, address, dateOfBirth, describe, email);
-
+    @PostMapping(value = "/add-new-profile",consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public CompletableFuture<Object> addNewProfile(@RequestParam(name = "userData") String userData,
+                                                    @RequestParam(name = "avatar") MultipartFile avatar){
+        return CompletableFuture.completedFuture(userService.updateProfile(avatar,userData));
     }
 
     @PostMapping("/change-password")

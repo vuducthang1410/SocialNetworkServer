@@ -1,4 +1,4 @@
-package wint.webchat.config;
+package wint.webchat.config.websocket;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;

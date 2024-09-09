@@ -7,10 +7,13 @@ import jakarta.validation.Valid;
 import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import wint.webchat.common.Constant;
+import wint.webchat.modelDTO.UserDataRequest;
 import wint.webchat.modelDTO.reponse.ApiResponse;
 import wint.webchat.modelDTO.reponse.AuthResponseData;
 import wint.webchat.modelDTO.request.AuthLoginDTO;
@@ -18,10 +21,7 @@ import wint.webchat.modelDTO.request.AuthSignUpDTO;
 import wint.webchat.modelDTO.request.ResetPasswordDTO;
 import wint.webchat.service.Impl.AuthService;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -113,5 +113,4 @@ public class AuthController {
         authService.logoutAll(refreshToken);
         return ResponseEntity.ok("successfully");
     }
-
 }

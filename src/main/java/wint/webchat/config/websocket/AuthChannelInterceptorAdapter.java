@@ -1,4 +1,4 @@
-package wint.webchat.config;
+package wint.webchat.config.websocket;
 
 import org.springframework.messaging.Message;
 import org.springframework.messaging.MessageChannel;
@@ -14,7 +14,7 @@ public class AuthChannelInterceptorAdapter implements ChannelInterceptor {
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
         final StompHeaderAccessor accessor = MessageHeaderAccessor.getAccessor(message, StompHeaderAccessor.class);
-        if (StompCommand.CONNECT == accessor.getCommand()) {
+        if (accessor!=null&&StompCommand.CONNECT == accessor.getCommand()) {
             final String username = accessor.getFirstNativeHeader("AccessToken");
         }
         return message;

@@ -5,7 +5,9 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.checkerframework.checker.units.qual.C;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 import org.hibernate.annotations.UuidGenerator;
 import wint.webchat.common.Constant;
 
@@ -76,7 +78,15 @@ public class User implements Serializable {
     private String createTime;
     @Column(name = "IS_COMPLETE", columnDefinition = "VARCHAR(5) DEFAULT 'N'")
     private String isComplete;
-
+    @Column(name="IS_LOCK")
+    private String isLock;
+    @Column(name="LOCK_BY")
+    private String lockBy;
+    @Column(name = "TIME_LOCK")
+    @UpdateTimestamp
+    private String timeLock;
+    @Column(name="RELATIONSHIP_STATUS")
+    private String relationshipStatus;
     public User(String userName, String passwordEncrypt, String firstName,String lastName, String provide) {
         this.userName = userName;
         this.passwordEncrypt = passwordEncrypt;
@@ -94,6 +104,7 @@ public class User implements Serializable {
         this.isAccountNonLocked = true;
         this.provide = provide;
         this.isComplete= Constant.STATUS.NO;
+        this.isLock=Constant.STATUS.NO;
     }
 
     public User(String userName, String passwordEncrypt, String firstName,String lastName,
@@ -114,5 +125,6 @@ public class User implements Serializable {
         this.isAccountNonLocked = true;
         this.provide = provide;
         this.isComplete=Constant.STATUS.NO;
+        this.isLock=Constant.STATUS.NO;
     }
 }

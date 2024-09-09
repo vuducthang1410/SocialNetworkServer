@@ -1,6 +1,9 @@
 package wint.webchat.service.Impl;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import org.modelmapper.ModelMapper;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,7 +14,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import wint.webchat.entities.user.User;
 import wint.webchat.google.IGoogleDriveFile;
+import wint.webchat.mapper.JsonMapper;
 import wint.webchat.mapper.MapperObj;
+import wint.webchat.modelDTO.UserDataRequest;
 import wint.webchat.modelDTO.reponse.ApiResponse;
 import wint.webchat.modelDTO.reponse.ProfileDTO;
 import wint.webchat.modelDTO.request.AuthSignUpDTO;
@@ -31,6 +36,9 @@ public class UserServiceImpl implements IUserService {
     private final IUserRepositoryJPA userRepositoryJPA;
     private final MapperObj mapperObj;
     private final IGoogleDriveFile googleDriveFile;
+    private final String DOMAIN_AVTAR = "https://lh3.google.com/u/0/d/";
+    private final JsonMapper jsonMapper;
+    private final Logger logger=LogManager.getLogger(UserServiceImpl.class);
 
 
     @Override
@@ -58,30 +66,33 @@ public class UserServiceImpl implements IUserService {
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
     @Modifying
-    public ApiResponse<String> updateProfile(Long id, MultipartFile avatar, String fistName,String lastName, String address, Date dateOfBirth, String describe, String email) {
-        Optional<User> userOptional = userRepositoryJPA.findUsersById(id);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            if (avatar != null) {
-                String urlAvatar = "https://lh3.google.com/u/0/d/" + googleDriveFile.uploadFile(avatar, "Root", true);
-                user.setUrlAvatar(urlAvatar);
+    public ApiResponse<String> updateProfile(MultipartFile avatar, String userDataRequestString) {
+        try {
+            UserDataRequest userDataRequest = jsonMapper.jsonToObject(userDataRequestString, UserDataRequest.class);
+            Optional<User> userOptional = userRepositoryJPA.findUsersById(userDataRequest.getUserId());
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                if (avatar != null) {
+                    String urlAvatar = DOMAIN_AVTAR.concat(googleDriveFile.uploadFile(avatar, "Root", true));
+                    user.setUrlAvatar(urlAvatar);
+                }
+                if (userDataRequest.getDateOfBirth() != null && !userDataRequest.getDateOfBirth().isEmpty()) {
+                    Date date = new Date(userDataRequest.getDateOfBirth());
+                    user.setDateOfBirth(new java.sql.Date(date.getTime()));
+                }
+                user.setEmail(userDataRequest.getEmail());
+                user.setDescribe(userDataRequest.getDescriber());
+                user.setIdAddress(userDataRequest.getAddress());
+                userRepository.update(user);
+                return ApiResponse.<String>builder()
+                        .code(HttpStatus.OK.value())
+                        .error(Map.of())
+                        .data("")
+                        .build();
             }
 
-            if (dateOfBirth != null) {
-                java.sql.Date sqlDate = new java.sql.Date(dateOfBirth.getTime());
-                user.setDateOfBirth(sqlDate);
-            }
-            user.setEmail(email);
-            user.setDescribe(describe);
-            user.setFirstName(fistName);
-            user.setLastName(lastName);
-            user.setIdAddress(address);
-            userRepository.update(user);
-            return ApiResponse.<String>builder()
-                    .code(HttpStatus.OK.value())
-                    .error(Map.of())
-                    .data("")
-                    .build();
+        } catch (Exception e) {
+            logger.error("Lỗi khi thực hiện cập nhật thông tin tài khoản!!! Root Cause: {}",e.getMessage());
         }
         return ApiResponse.<String>builder()
                 .code(HttpStatus.BAD_REQUEST.value())
