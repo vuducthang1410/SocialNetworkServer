@@ -9,7 +9,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
     <groupId>wint</groupId>
-    <artifactId>WebChat</artifactId>
+    <artifactId>SocialNetwork</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <name>WebChat</name>
     <description>WebChat</description>

@@ -20,8 +20,7 @@ public class UserRoleRepositoryImpl {
     @PersistenceContext
     private EntityManager entityManager;
     private static final Logger log= LogManager.getLogger(UserRoleRepositoryImpl.class);
-    @Transactional
-    public ResponseEntity<String> addRoleForUser(User user, List<Role> roleList){
+    public void addRoleForUser(User user, List<Role> roleList){
         Set<UserRole> userRoleSet=new HashSet<>();
         try {
             entityManager.persist(user);
@@ -31,10 +30,8 @@ public class UserRoleRepositoryImpl {
                 }
             }
             userRoleSet.forEach(e->entityManager.persist(e));
-            return ResponseEntity.status(HttpStatus.CREATED).body("register success");
         }catch (Exception e){
             log.error("Server error: xảy ra ngoại lệ khi đăng ký tài khoản mới! Rootcause: {}",e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
     }
 }

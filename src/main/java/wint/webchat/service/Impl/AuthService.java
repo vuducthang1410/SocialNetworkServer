@@ -1,7 +1,6 @@
 package wint.webchat.service.Impl;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -14,8 +13,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.validation.BindingResult;
 import wint.webchat.common.Constant;
+import wint.webchat.common.ResponseCode;
 import wint.webchat.entities.user.Role;
 import wint.webchat.entities.user.User;
 import wint.webchat.event.authEvent.AuthPublish;
@@ -24,6 +24,7 @@ import wint.webchat.google.GoogleAuth;
 import wint.webchat.mapper.JsonMapper;
 import wint.webchat.modelDTO.PubSubDTO.AuthRedisDTO;
 import wint.webchat.modelDTO.PubSubDTO.PubSubMessage;
+import wint.webchat.modelDTO.Result;
 import wint.webchat.modelDTO.reponse.ApiResponse;
 import wint.webchat.modelDTO.reponse.AuthGoogleResponseDTO;
 import wint.webchat.modelDTO.reponse.AuthResponseData;
@@ -39,7 +40,13 @@ import wint.webchat.repositories.Impl.UserRoleRepositoryImpl;
 import wint.webchat.repositories.RoleRepositoryJPA;
 import wint.webchat.util.TokenGenerator;
 
-import java.util.*;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,50 +64,68 @@ public class AuthService {
     private final JsonMapper jsonMapper;
     private final RoleRepositoryJPA roleRepositoryJPA;
     private final AuthRedisService authRedisService;
-    private static final Logger log= LoggerFactory.getLogger(AuthService.class);
-    public ApiResponse<AuthResponseData> signIn(AuthLoginDTO authLoginDTO, HttpServletResponse response) {
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
+
+    public Map<String, Object> signIn(AuthLoginDTO authLoginDTO,
+                                      HttpServletResponse response,
+                                      BindingResult bindingResult,
+                                      String transactionId) {
+        Map<String, Object> responseData = new HashMap<>();
+        Result result = Result.Ok();
         try {
-            Optional<User> userOptional=userRepositoryJPA.findUsersByUserName(authLoginDTO.getUsername());
-            if(userOptional.isPresent()){
-                User user=userOptional.get();
-                boolean success=passwordEncoder.matches(authLoginDTO.getPassword(),user.getPasswordEncrypt());
-                if(success){
-                    return ApiResponse.<AuthResponseData>builder()
-                            .data(getResponseAuthData(user, response))
-                            .code(200)
-                            .error(Map.of())
-                            .build();
+            Optional<User> userOptional = userRepositoryJPA.findByUserName(authLoginDTO.getUsername());
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                boolean success = passwordEncoder.matches(authLoginDTO.getPassword(), user.getPasswordEncrypt());
+                if (success) {
+//                    return ApiResponse.<AuthResponseData>builder()
+//                            .data(getResponseAuthData(user, response))
+//                            .code(200)
+//                            .error(Map.of())
+//                            .build();
                 }
+            }else
+                result=new Result()
+        } catch (Exception e) {
+            log.error(Constant.MESSAGE_LOG,transactionId, e.getMessage());
+            result = Result.SYSTEM_ERR();
+        }
+        responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+        return responseData;
+    }
+
+    @Transactional
+    public Map<String, Object> signUp(AuthSignUpDTO authSignUp, String transactionId, BindingResult bindingResult) {
+        Map<String, Object> responseData = new HashMap<>();
+        Result result = Result.Ok();
+        try {
+            if (bindingResult.hasErrors()) {
+                result = new Result(ResponseCode.DATA_REGISTER_ACCOUNT_MISSING.getCode(), false, ResponseCode.DATA_REGISTER_ACCOUNT_MISSING.getMessage());
+                responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+                return responseData;
+            }
+            Optional<User> userCheck = userRepositoryJPA.findByUserName(authSignUp.getUsername());
+            if (userCheck.isEmpty()) {
+                User user = new User(authSignUp.getUsername()
+                        , passwordEncoder.encode(authSignUp.getPassword())
+                        , authSignUp.getFirstname(),
+                        authSignUp.getLastname(),
+                        Constant.AccountType.SYSTEM.getAccountType()
+                );
+                List<Role> list = roleRepository.findByRoleName("ROLE_USER").stream().collect(Collectors.toList());
+                if (list.isEmpty())
+                    result = new Result(ResponseCode.ROLE_NOT_EXITS.getCode(), false, ResponseCode.ROLE_NOT_EXITS.getMessage());
+                else
+                    userRoleRepository.addRoleForUser(user, list);
+            } else {
+                result = new Result(ResponseCode.ACCOUNT_ALREADY_EXISTS.getCode(), false, ResponseCode.ACCOUNT_ALREADY_EXISTS.getMessage());
             }
         } catch (Exception e) {
-            log.error("Xảy ra ngoại lệ khi thưc hiện login! Root cause: {}",e.getMessage());
-            return ApiResponse.<AuthResponseData>builder()
-                    .data(null)
-                    .code(400)
-                    .error(Map.of("server", "server error"))
-                    .build();
+            log.error(Constant.MESSAGE_LOG, transactionId, "Xảy ra ngoại lệ khi thực hiện đăng ký tài khoản", e.getMessage());
+            result = Result.SYSTEM_ERR();
         }
-        return ApiResponse.<AuthResponseData>builder()
-                .code(200)
-                .error(Map.of("failure","Username or password isn't not correct"))
-                .build();
-    }
-@Transactional
-    public ResponseEntity<String> signUp(AuthSignUpDTO authSignUp) {
-        Optional<User> userCheck = userRepositoryJPA.findUsersByUserName(authSignUp.getUsername());
-        if (userCheck.isEmpty()) {
-            User user = new User(authSignUp.getUsername()
-                    , passwordEncoder.encode(authSignUp.getPassword())
-                    , authSignUp.getFirstname(),
-                    authSignUp.getLastname(),
-                    Constant.AccountType.SYSTEM.getAccountType()
-            );
-            List<Role> list = roleRepository.findByRoleName("ROLE_USER").stream().collect(Collectors.toList());
-            if (list.isEmpty()) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Server error");
-            return userRoleRepository.addRoleForUser(user, list);
-        } else {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("username đã tồn tại");
-        }
+        responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+        return responseData;
     }
 
     public ApiResponse<Map<String, String>> refreshToken(String refreshToken) {
@@ -138,7 +163,7 @@ public class AuthService {
             } else
                 throw new Exception();
         } catch (Exception e) {
-            log.error("Xảy ra ngoại lệ khi thưc hiện refresh token! Root cause: {}",e.getMessage());
+            log.error("Xảy ra ngoại lệ khi thưc hiện refresh token! Root cause: {}", e.getMessage());
             return ApiResponse.<Map<String, String>>builder()
                     .error(Map.of("refreshToken", "SERVER ERROR"))
                     .code(Constant.StatusCode.SERVER_ERROR)
@@ -151,10 +176,10 @@ public class AuthService {
         try {
             AuthGoogleResponseDTO responseAuthData = googleAuth.signIn(authCode);
             UserInfoGoogleResponseDTO userInfo = googleAuth.extractTokenGoogle(responseAuthData.getAccessToken());
-            Optional<User> userFromDb = userRepositoryJPA.findUsersByUserName(userInfo.getEmail());
+            Optional<User> userFromDb = userRepositoryJPA.findByUserName(userInfo.getEmail());
             if (userFromDb.isEmpty()) {
                 User userNew = new User(userInfo.getEmail(), passwordEncoder.encode(""),
-                        userInfo.getName(),"", userInfo.getEmail(), userInfo.getPicture(), Constant.AccountType.GOOGLE.getAccountType());
+                        userInfo.getName(), "", userInfo.getEmail(), userInfo.getPicture(), Constant.AccountType.GOOGLE.getAccountType());
                 List<Role> list = roleRepository.findByRoleName("ROLE_USER").stream().collect(Collectors.toList());
                 if (list.isEmpty())
                     throw new Exception();
@@ -186,13 +211,13 @@ public class AuthService {
     }
 
     private AuthResponseData getResponseAuthData(User user, HttpServletResponse response) {
-        Collection<GrantedAuthority> listAuthorities=roleRepositoryJPA.findRoleByUsername(user.getUserName()).stream().map(e->new GrantedAuthority() {
+        Collection<GrantedAuthority> listAuthorities = roleRepositoryJPA.findRoleByUsername(user.getUserName()).stream().map(e -> new GrantedAuthority() {
             @Override
             public String getAuthority() {
                 return e.getRoleName();
             }
         }).collect(Collectors.toList());
-        var accessToken = jwtService.generateAccessToken(new HashMap<>(), user.getUserName(),listAuthorities);
+        var accessToken = jwtService.generateAccessToken(new HashMap<>(), user.getUserName(), listAuthorities);
         var refreshToken = jwtService.generateRefreshToken(user.getUserName());
         Cookie cookie = new Cookie(Constant.RedisKeys.REFRESH_TOKEN.getValueRedisKey(), refreshToken);
         cookie.setHttpOnly(true);
@@ -210,6 +235,7 @@ public class AuthService {
                 .build();
         return authResponseData;
     }
+
     public ResponseEntity<String> sendMailResetPassword(String email) {
         String token = TokenGenerator.generateToken(150);
         mailPublish.pushEventToQueue(email, token);
@@ -241,6 +267,7 @@ public class AuthService {
                     .build();
         }
     }
+
     public void logout(String refreshToken) {
         publishLogoutEvent(refreshToken, Constant.AuthEventType.LOGOUT);
     }

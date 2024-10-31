@@ -4,16 +4,22 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import wint.webchat.common.Constant;
-import wint.webchat.modelDTO.UserDataRequest;
+import wint.webchat.common.ResponseData;
 import wint.webchat.modelDTO.reponse.ApiResponse;
 import wint.webchat.modelDTO.reponse.AuthResponseData;
 import wint.webchat.modelDTO.request.AuthLoginDTO;
@@ -21,7 +27,10 @@ import wint.webchat.modelDTO.request.AuthSignUpDTO;
 import wint.webchat.modelDTO.request.ResetPasswordDTO;
 import wint.webchat.service.Impl.AuthService;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -29,20 +38,20 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
-    @PostMapping(value = "/signUp")
-    public ResponseEntity<String> register(@Valid @RequestBody AuthSignUpDTO authSignUpDTO,
-                                           BindingResult bindingResult) {
-        bindingResult.getAllErrors().forEach(e -> System.out.println(e.getDefaultMessage()));
-        if (bindingResult.hasErrors()) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Validation failed");
-        }
-        return authService.signUp(authSignUpDTO);
+
+    @PostMapping(value = "/sign-up")
+    public CompletableFuture<ResponseData<Map<String, Object>>> register(@Valid @RequestBody AuthSignUpDTO authSignUpDTO,
+                                                                         BindingResult bindingResult,
+                                                                         @NonNull @RequestHeader(Constant.TRANSACTION_ID_KEY) String transactionId) {
+        return CompletableFuture.completedFuture(ResponseData.createResponse(authService.signUp(authSignUpDTO, transactionId, bindingResult)));
     }
 
     @PostMapping("/sign-in")
-    public ApiResponse<AuthResponseData> signIn(@RequestBody AuthLoginDTO signUpRequest,
-                                                HttpServletResponse response) {
-        return authService.signIn(signUpRequest, response);
+    public CompletableFuture<ResponseData<Map<String, Object>>> signIn(@RequestBody AuthLoginDTO signUpRequest,
+                                                                       HttpServletResponse response,
+                                                                       BindingResult bindingResult,
+                                                                       @NonNull @RequestHeader(Constant.TRANSACTION_ID_KEY) String transactionId) {
+        return CompletableFuture.completedFuture(ResponseData.createResponse(authService.signIn(signUpRequest, response,bindingResult,transactionId)));
     }
 
     @PostMapping("/refresh-token")
@@ -103,13 +112,15 @@ public class AuthController {
     public ResponseEntity<String> getAuthUrl(@NonNull @PathVariable("type") String type) {
         return authService.getAuthUrl(type);
     }
+
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@CookieValue("REFRESH_TOKEN") String refreshToken){
+    public ResponseEntity<String> logout(@CookieValue("REFRESH_TOKEN") String refreshToken) {
         authService.logout(refreshToken);
         return ResponseEntity.ok("successfully");
     }
+
     @PostMapping("/logout-all")
-    public ResponseEntity<String> logoutAll(@CookieValue("REFRESH_TOKEN") String refreshToken){
+    public ResponseEntity<String> logoutAll(@CookieValue("REFRESH_TOKEN") String refreshToken) {
         authService.logoutAll(refreshToken);
         return ResponseEntity.ok("successfully");
     }
