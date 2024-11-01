@@ -24,15 +24,15 @@ public class AuthListener implements MessageListener {
         System.out.println(data);
         try {
             var dataObject=jsonMapper.jsonPubToObject(message.getBody(),PubSubMessage.class);
-            if(dataObject.getEvenType().equalsIgnoreCase(Constant.AuthEventType.SAVE_TOKEN_LOGIN.getGetAuthEventType())){
-                authSubscriber.saveTokenToServer((LinkedHashMap<String, Object>) dataObject.getPayload());
-            }else if(dataObject.getEvenType().equalsIgnoreCase(Constant.AuthEventType.REFRESH_ACCESS_TOKEN.getGetAuthEventType())){
-                authSubscriber.saveNewAccessTokenToServer((LinkedHashMap<String, Object>) dataObject.getPayload());
-            } else if (dataObject.getEvenType().equalsIgnoreCase(Constant.AuthEventType.LOGOUT.getGetAuthEventType())) {
-                authSubscriber.deleteRefreshToken((LinkedHashMap<String, Object>) dataObject.getPayload());
-            } else if (dataObject.getEvenType().equalsIgnoreCase(Constant.AuthEventType.LOGOUT_ALL.getGetAuthEventType())) {
-                authSubscriber.deleteAllTokenByUsername((LinkedHashMap<String, Object>) dataObject.getPayload());
-            }
+//            if(dataObject.getEvenType().equalsIgnoreCase(Constant.AuthEventType.SAVE_TOKEN_LOGIN.getGetAuthEventType())){
+//                authSubscriber.saveTokenToServer((LinkedHashMap<String, Object>) dataObject.getPayload());
+//            }else if(dataObject.getEvenType().equalsIgnoreCase(Constant.AuthEventType.REFRESH_ACCESS_TOKEN.getGetAuthEventType())){
+//                authSubscriber.saveNewAccessTokenToServer((LinkedHashMap<String, Object>) dataObject.getPayload());
+//            } else if (dataObject.getEvenType().equalsIgnoreCase(Constant.AuthEventType.LOGOUT.getGetAuthEventType())) {
+//                authSubscriber.deleteRefreshToken((LinkedHashMap<String, Object>) dataObject.getPayload());
+//            } else if (dataObject.getEvenType().equalsIgnoreCase(Constant.AuthEventType.LOGOUT_ALL.getGetAuthEventType())) {
+//                authSubscriber.deleteAllTokenByUsername((LinkedHashMap<String, Object>) dataObject.getPayload());
+//            }
             System.out.println(dataObject);
         } catch (IOException e) {
             throw new RuntimeException(e);

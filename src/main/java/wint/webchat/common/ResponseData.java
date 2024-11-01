@@ -19,7 +19,7 @@ public class ResponseData<T> {
         ResponseData responseData = new ResponseData<>();
         responseData.setTransactionId(Constant.TRANSACTION_ID_KEY);
         responseData.setResult(data.getOrDefault(Constant.RESPONSE_KEY.RESULT, Result.SYSTEM_ERR()));
-        responseData.setData(data.getOrDefault(Constant.RESPONSE_KEY.DATA,"successful"));
+        responseData.setData(data.getOrDefault(Constant.RESPONSE_KEY.DATA,null));
         return responseData;
     }
 }
