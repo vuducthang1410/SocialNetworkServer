@@ -4,7 +4,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
 import org.springframework.lang.NonNull;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.CookieValue;
@@ -84,16 +83,20 @@ public class AuthController {
                 ));
     }
 
-//    @PostMapping("/sign-in-with-google")
-//    public CompletableFuture<ResponseData<Map<String, Object>>> signInWithGoogle(@RequestParam(value = "code") String code,
-//                                                          HttpServletResponse response) {
-//        return CompletableFuture.completedFuture(
-//                ResponseData.createResponse(authService.signInWithGoogle(code, response));
-//    }
+    @PostMapping("/sign-in-with-google")
+    public CompletableFuture<ResponseData<Map<String, Object>>> signInWithGoogle(
+            @RequestParam(value = "code") String code,
+            HttpServletResponse response,
+            @NonNull @RequestHeader(Constant.TRANSACTION_ID_KEY) String transactionId) {
+        return CompletableFuture.completedFuture(
+                ResponseData.createResponse(authService.signInWithGoogle(code, response,transactionId)));
+    }
 
     @GetMapping("/url-login/{type}")
-    public ResponseEntity<String> getAuthUrl(@NonNull @PathVariable("type") String type) {
-        return authService.getAuthUrl(type);
+    public CompletableFuture<ResponseData<Map<String, Object>>> getAuthUrl(
+            @NonNull @PathVariable("type") String type,
+            @NonNull @RequestHeader(Constant.TRANSACTION_ID_KEY) String transactionId) {
+        return CompletableFuture.completedFuture(ResponseData.createResponse(authService.getAuthUrl(type,transactionId)));
     }
 
     @PostMapping("/logout")
@@ -110,6 +113,6 @@ public class AuthController {
             @CookieValue("REFRESH_TOKEN") String refreshToken,
             @NonNull @RequestHeader(Constant.TRANSACTION_ID_KEY) String transactionId
     ) {
-        return CompletableFuture.completedFuture(ResponseData.createResponse(authService.logoutAll(refreshToken,transactionId)));
+        return CompletableFuture.completedFuture(ResponseData.createResponse(authService.logoutAll(refreshToken, transactionId)));
     }
 }

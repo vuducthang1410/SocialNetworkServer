@@ -13,6 +13,7 @@ public enum ResponseCode {
     PASSWORD_NOT_CORRECT("ERR_ACC_0005", "Mật khẩu chưa chính xác"),
     DATA_LOGIN_MISSING("ERR_ACC_0006", "Thông tin đăng nhập chưa đầy đủ"),
     REQUEST_DATA_MISSING("ERR_ACC_0007","Vui lòng nhập đầy đủ dữ liệu"),
+    TYPE_LOGIN_NOT_EXISTS("ERR_ACC_008","Do not identify type login!"),
 
     //TOKEN - TK
     REFRESH_TOKEN_COOKIE_MISSING("ERR_TK_0001", "Không tìm thấy refresh token trong cookie"),

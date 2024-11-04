@@ -213,7 +213,9 @@ public class AuthService {
         return responseData;
     }
 
-    public ApiResponse<AuthResponseData> signInWithGoogle(String authCode, HttpServletResponse response) {
+    public Map<String, Object> signInWithGoogle(String authCode, HttpServletResponse response,String transactionId) {
+        Map<String,Object> responseData=new HashMap<>();
+        Result result=Result.Ok();
         try {
             AuthGoogleResponseDTO responseAuthData = googleAuth.signIn(authCode);
             UserInfoGoogleResponseDTO userInfo = googleAuth.extractTokenGoogle(responseAuthData.getAccessToken());
@@ -226,29 +228,29 @@ public class AuthService {
                     throw new Exception();
                 userRoleRepository.addRoleForUser(userNew, list);
             }
-            return ApiResponse.<AuthResponseData>builder()
-                    .code(200)
-                    .error(Map.of())
-                    .build();
         } catch (Exception e) {
-            return ApiResponse.<AuthResponseData>builder()
-                    .data(null)
-                    .code(400)
-                    .error(Map.of("server", "server error"))
-                    .build();
+            log.error(Constant.MESSAGE_LOG,transactionId,"Xảy ra lỗi khi thực hiện xử lý đăng nhập bằng google",transactionId);
+            result=Result.SYSTEM_ERR();
         }
+        responseData.put(Constant.RESPONSE_KEY.RESULT,result);
+        return responseData;
     }
 
-    public ResponseEntity<String> getAuthUrl(String type) {
+    public Map<String, Object> getAuthUrl(String type, String transactionId) {
+        Map<String, Object> responseData = new HashMap<>();
+        Result result = Result.Ok();
         try {
             if (type.equalsIgnoreCase("GOOGLE")) {
-                return ResponseEntity.ok(googleAuth.getAuthUrl());
+                responseData.put(Constant.RESPONSE_KEY.DATA, googleAuth.getAuthUrl());
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Do not identify type login!");
+                result = new Result(ResponseCode.TYPE_LOGIN_NOT_EXISTS.getCode(), false, ResponseCode.TYPE_LOGIN_NOT_EXISTS.getMessage());
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error" + e.getMessage());
+            log.error(Constant.MESSAGE_LOG, transactionId, "Xảy ra lỗi khi lấy url đăng nhập bằng google", e.getMessage());
+            result = Result.SYSTEM_ERR();
         }
+        responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+        return responseData;
     }
 
 
