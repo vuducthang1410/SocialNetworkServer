@@ -6,6 +6,8 @@ import lombok.NoArgsConstructor;
 
 public class Constant {
     public static final String data="/";
+    public static final String TRANSACTION_ID_KEY = "transactionId";
+    public static final String MESSAGE_LOG="transactionId: {} - {}! RootCause: {}";
     public interface RESPONSE_KEY{
         String RESULT = "RESULT_KEY";
         String DATA = "DATA_KEY";

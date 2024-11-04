@@ -14,10 +14,7 @@ import java.util.Optional;
 @Repository
 @Transactional
 public interface IUserRepositoryJPA extends JpaRepository<User, String> {
-    @Query("""
-                select u from User u where u.userName = :username
-            """)
-    Optional<User> findUsersByUserName(String username);
+    Optional<User> findByUserName(String username);
 
     @Modifying
     @Query("update User u set u.passwordEncrypt = ?2 where u.email=?1")

@@ -1,9 +1,7 @@
 package wint.webchat.service.Impl;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.UnsupportedJwtException;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -14,16 +12,17 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
+import org.springframework.util.StringUtils;
+import org.springframework.validation.BindingResult;
 import wint.webchat.common.Constant;
+import wint.webchat.common.ResponseCode;
 import wint.webchat.entities.user.Role;
 import wint.webchat.entities.user.User;
-import wint.webchat.event.authEvent.AuthPublish;
 import wint.webchat.event.mailEvent.MailPublish;
 import wint.webchat.google.GoogleAuth;
-import wint.webchat.mapper.JsonMapper;
 import wint.webchat.modelDTO.PubSubDTO.AuthRedisDTO;
 import wint.webchat.modelDTO.PubSubDTO.PubSubMessage;
+import wint.webchat.modelDTO.Result;
 import wint.webchat.modelDTO.reponse.ApiResponse;
 import wint.webchat.modelDTO.reponse.AuthGoogleResponseDTO;
 import wint.webchat.modelDTO.reponse.AuthResponseData;
@@ -39,7 +38,14 @@ import wint.webchat.repositories.Impl.UserRoleRepositoryImpl;
 import wint.webchat.repositories.RoleRepositoryJPA;
 import wint.webchat.util.TokenGenerator;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -53,60 +59,120 @@ public class AuthService {
     private final GoogleAuth googleAuth;
     private final MailPublish mailPublish;
     private final RedisService redisService;
-    private final AuthPublish authPublish;
-    private final JsonMapper jsonMapper;
     private final RoleRepositoryJPA roleRepositoryJPA;
     private final AuthRedisService authRedisService;
-    private static final Logger log= LoggerFactory.getLogger(AuthService.class);
-    public ApiResponse<AuthResponseData> signIn(AuthLoginDTO authLoginDTO, HttpServletResponse response) {
+    private static final Logger log = LoggerFactory.getLogger(AuthService.class);
+
+    public Map<String, Object> signIn(AuthLoginDTO authLoginDTO,
+                                      HttpServletResponse response,
+                                      BindingResult bindingResult,
+                                      String transactionId) {
+        Map<String, Object> responseData = new HashMap<>();
+        Result result = Result.Ok();
         try {
-            Optional<User> userOptional=userRepositoryJPA.findUsersByUserName(authLoginDTO.getUsername());
-            if(userOptional.isPresent()){
-                User user=userOptional.get();
-                boolean success=passwordEncoder.matches(authLoginDTO.getPassword(),user.getPasswordEncrypt());
-                if(success){
-                    return ApiResponse.<AuthResponseData>builder()
-                            .data(getResponseAuthData(user, response))
-                            .code(200)
-                            .error(Map.of())
-                            .build();
-                }
+            if (bindingResult.hasErrors()) {
+                result = new Result(ResponseCode.DATA_LOGIN_MISSING.getCode(), false, ResponseCode.DATA_LOGIN_MISSING.getMessage());
+                responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+                return responseData;
             }
+            Optional<User> userOptional = userRepositoryJPA.findByUserName(authLoginDTO.getUsername());
+            if (userOptional.isPresent()) {
+                User user = userOptional.get();
+                if (passwordEncoder.matches(authLoginDTO.getPassword(), user.getPasswordEncrypt())) {
+                    var userInfo = getResponseAuthData(user, response);
+                    responseData.put(Constant.RESPONSE_KEY.DATA, userInfo);
+                } else {
+                    result = new Result(
+                            ResponseCode.PASSWORD_NOT_CORRECT.getCode(),
+                            false,
+                            ResponseCode.PASSWORD_NOT_CORRECT.getMessage());
+                }
+            } else
+                result = new Result(
+                        ResponseCode.ACCOUNT_NOT_EXITS.getCode(),
+                        false,
+                        ResponseCode.ACCOUNT_NOT_EXITS.getMessage());
         } catch (Exception e) {
-            log.error("Xảy ra ngoại lệ khi thưc hiện login! Root cause: {}",e.getMessage());
-            return ApiResponse.<AuthResponseData>builder()
-                    .data(null)
-                    .code(400)
-                    .error(Map.of("server", "server error"))
-                    .build();
+            log.error(Constant.MESSAGE_LOG, transactionId, "Lỗi khi thực hiện đang nhập", e.getMessage());
+            result = Result.SYSTEM_ERR();
         }
-        return ApiResponse.<AuthResponseData>builder()
-                .code(200)
-                .error(Map.of("failure","Username or password isn't not correct"))
-                .build();
-    }
-@Transactional
-    public ResponseEntity<String> signUp(AuthSignUpDTO authSignUp) {
-        Optional<User> userCheck = userRepositoryJPA.findUsersByUserName(authSignUp.getUsername());
-        if (userCheck.isEmpty()) {
-            User user = new User(authSignUp.getUsername()
-                    , passwordEncoder.encode(authSignUp.getPassword())
-                    , authSignUp.getFirstname(),
-                    authSignUp.getLastname(),
-                    Constant.AccountType.SYSTEM.getAccountType()
-            );
-            List<Role> list = roleRepository.findByRoleName("ROLE_USER").stream().collect(Collectors.toList());
-            if (list.isEmpty()) return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Server error");
-            return userRoleRepository.addRoleForUser(user, list);
-        } else {
-            return ResponseEntity.status(HttpStatus.CONFLICT).body("username đã tồn tại");
-        }
+        responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+        return responseData;
     }
 
-    public ApiResponse<Map<String, String>> refreshToken(String refreshToken) {
+    @Transactional
+    public Map<String, Object> signUp(AuthSignUpDTO authSignUp, String transactionId, BindingResult bindingResult) {
+        Map<String, Object> responseData = new HashMap<>();
+        Result result = Result.Ok();
         try {
-            if (refreshToken.length() == 0) throw new Exception();
-            jwtService.isTokenExpiration(refreshToken);
+            if (bindingResult.hasErrors()) {
+                result = new Result(ResponseCode.DATA_REGISTER_ACCOUNT_MISSING.getCode(), false, ResponseCode.DATA_REGISTER_ACCOUNT_MISSING.getMessage());
+                responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+                return responseData;
+            }
+            Optional<User> userCheck = userRepositoryJPA.findByUserName(authSignUp.getUsername());
+            if (userCheck.isEmpty()) {
+                User user = new User(authSignUp.getUsername()
+                        , passwordEncoder.encode(authSignUp.getPassword())
+                        , authSignUp.getFirstname(),
+                        authSignUp.getLastname(),
+                        Constant.AccountType.SYSTEM.getAccountType()
+                );
+                List<Role> list = roleRepository.findByRoleName("ROLE_USER").stream().collect(Collectors.toList());
+                if (list.isEmpty())
+                    result = new Result(ResponseCode.ROLE_NOT_EXITS.getCode(), false, ResponseCode.ROLE_NOT_EXITS.getMessage());
+                else
+                    userRoleRepository.addRoleForUser(user, list);
+            } else {
+                result = new Result(ResponseCode.ACCOUNT_ALREADY_EXISTS.getCode(), false, ResponseCode.ACCOUNT_ALREADY_EXISTS.getMessage());
+            }
+        } catch (Exception e) {
+            log.error(Constant.MESSAGE_LOG, transactionId, "Xảy ra ngoại lệ khi thực hiện đăng ký tài khoản", e.getMessage());
+            result = Result.SYSTEM_ERR();
+        }
+        responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+        return responseData;
+    }
+
+    public Map<String, Object> refreshToken(HttpServletRequest request, String transactionId) {
+        Map<String, Object> responseData = new HashMap<>();
+        Result result = Result.Ok();
+        try {
+            //todo kiểm tra cookie có dữ liệu không
+            Cookie[] cookies = request.getCookies();
+            if (cookies == null) {
+                result = new Result(
+                        ResponseCode.COOKIE_NOT_EXIST.getCode(),
+                        false,
+                        ResponseCode.COOKIE_NOT_EXIST.getMessage()
+                );
+                responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+                return responseData;
+            }
+            Optional<Cookie> cookie = Arrays.stream(cookies)
+                    .filter(r -> r.getName().equals(Constant.RedisKeys.REFRESH_TOKEN.getValueRedisKey()))
+                    .findFirst();
+            if (cookie.isEmpty()) {
+                result = new Result(
+                        ResponseCode.REFRESH_TOKEN_COOKIE_MISSING.getCode(),
+                        false,
+                        ResponseCode.REFRESH_TOKEN_COOKIE_MISSING.getMessage()
+                );
+                responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+                return responseData;
+            }
+            //todo: kiểm tra có cookie có dữ liệu không
+            String refreshToken = cookie.get().getValue();
+            if (!StringUtils.hasText(refreshToken)) {
+                result = new Result(
+                        ResponseCode.REFRESH_TOKEN_COOKIE_MISSING.getCode(),
+                        false,
+                        ResponseCode.REFRESH_TOKEN_COOKIE_MISSING.getMessage()
+                );
+                responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+                return responseData;
+            }
+            //verify thông tin từ token
             String username = jwtService.getUsernameFromToken(refreshToken);
             if (authRedisService.isRefreshTokenContainRedis(refreshToken, username)) {
                 if (!jwtService.isTokenExpiration(refreshToken)) {
@@ -118,135 +184,156 @@ public class AuthService {
                             .username(username)
                             .authorities(authorities)
                             .build();
-                    PubSubMessage<AuthRedisDTO> pubSubMessage = PubSubMessage
-                            .<AuthRedisDTO>builder()
-                            .messageId("")
-                            .timeMessageCreate(new Date().getTime())
-                            .attributes(Map.of())
-                            .evenType(Constant.AuthEventType.REFRESH_ACCESS_TOKEN.getGetAuthEventType())
-                            .payload(authRedisDTO)
-                            .build();
-                    authPublish.publishEvent(jsonMapper.objectToJson(pubSubMessage));
-                    return ApiResponse.<Map<String, String>>builder()
-                            .error(Map.of())
-                            .code(Constant.StatusCode.SUCCESS_CODE)
-                            .data(Map.of("accessToken", newAccessToken))
-                            .build();
+                    //lưu token vào redis
+                    authRedisService.saveNewAccessTokenToServer(authRedisDTO);
+                    responseData.put(Constant.RESPONSE_KEY.DATA, newAccessToken);
                 } else {
-                    throw new UnsupportedJwtException("");
+                    result = new Result(
+                            ResponseCode.TOKEN_EXPIRATION.getCode(),
+                            false,
+                            ResponseCode.TOKEN_EXPIRATION.getMessage()
+                    );
+                    responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+                    return responseData;
                 }
-            } else
-                throw new Exception();
+            } else {
+                result = new Result(
+                        ResponseCode.REFRESH_TOKEN_MISSING.getCode(),
+                        false,
+                        ResponseCode.REFRESH_TOKEN_MISSING.getMessage()
+                );
+                responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+                return responseData;
+            }
         } catch (Exception e) {
-            log.error("Xảy ra ngoại lệ khi thưc hiện refresh token! Root cause: {}",e.getMessage());
-            return ApiResponse.<Map<String, String>>builder()
-                    .error(Map.of("refreshToken", "SERVER ERROR"))
-                    .code(Constant.StatusCode.SERVER_ERROR)
-                    .data(Map.of())
-                    .build();
+            log.error(Constant.MESSAGE_LOG, transactionId, "Xảy ra ngoại lệ khi thực hiện tạo mới access token", e.getMessage());
+            result = Result.SYSTEM_ERR();
         }
+        responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+        return responseData;
     }
 
-    public ApiResponse<AuthResponseData> signInWithGoogle(String authCode, HttpServletResponse response) {
+    public Map<String, Object> signInWithGoogle(String authCode, HttpServletResponse response,String transactionId) {
+        Map<String,Object> responseData=new HashMap<>();
+        Result result=Result.Ok();
         try {
             AuthGoogleResponseDTO responseAuthData = googleAuth.signIn(authCode);
             UserInfoGoogleResponseDTO userInfo = googleAuth.extractTokenGoogle(responseAuthData.getAccessToken());
-            Optional<User> userFromDb = userRepositoryJPA.findUsersByUserName(userInfo.getEmail());
+            Optional<User> userFromDb = userRepositoryJPA.findByUserName(userInfo.getEmail());
             if (userFromDb.isEmpty()) {
                 User userNew = new User(userInfo.getEmail(), passwordEncoder.encode(""),
-                        userInfo.getName(),"", userInfo.getEmail(), userInfo.getPicture(), Constant.AccountType.GOOGLE.getAccountType());
+                        userInfo.getName(), "", userInfo.getEmail(), userInfo.getPicture(), Constant.AccountType.GOOGLE.getAccountType());
                 List<Role> list = roleRepository.findByRoleName("ROLE_USER").stream().collect(Collectors.toList());
                 if (list.isEmpty())
                     throw new Exception();
                 userRoleRepository.addRoleForUser(userNew, list);
             }
-            return ApiResponse.<AuthResponseData>builder()
-                    .code(200)
-                    .error(Map.of())
-                    .build();
         } catch (Exception e) {
-            return ApiResponse.<AuthResponseData>builder()
-                    .data(null)
-                    .code(400)
-                    .error(Map.of("server", "server error"))
-                    .build();
+            log.error(Constant.MESSAGE_LOG,transactionId,"Xảy ra lỗi khi thực hiện xử lý đăng nhập bằng google",transactionId);
+            result=Result.SYSTEM_ERR();
         }
+        responseData.put(Constant.RESPONSE_KEY.RESULT,result);
+        return responseData;
     }
 
-    public ResponseEntity<String> getAuthUrl(String type) {
+    public Map<String, Object> getAuthUrl(String type, String transactionId) {
+        Map<String, Object> responseData = new HashMap<>();
+        Result result = Result.Ok();
         try {
             if (type.equalsIgnoreCase("GOOGLE")) {
-                return ResponseEntity.ok(googleAuth.getAuthUrl());
+                responseData.put(Constant.RESPONSE_KEY.DATA, googleAuth.getAuthUrl());
             } else {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Do not identify type login!");
+                result = new Result(ResponseCode.TYPE_LOGIN_NOT_EXISTS.getCode(), false, ResponseCode.TYPE_LOGIN_NOT_EXISTS.getMessage());
             }
         } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Error" + e.getMessage());
+            log.error(Constant.MESSAGE_LOG, transactionId, "Xảy ra lỗi khi lấy url đăng nhập bằng google", e.getMessage());
+            result = Result.SYSTEM_ERR();
         }
+        responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+        return responseData;
     }
 
-    private AuthResponseData getResponseAuthData(User user, HttpServletResponse response) {
-        Collection<GrantedAuthority> listAuthorities=roleRepositoryJPA.findRoleByUsername(user.getUserName()).stream().map(e->new GrantedAuthority() {
-            @Override
-            public String getAuthority() {
-                return e.getRoleName();
-            }
-        }).collect(Collectors.toList());
-        var accessToken = jwtService.generateAccessToken(new HashMap<>(), user.getUserName(),listAuthorities);
-        var refreshToken = jwtService.generateRefreshToken(user.getUserName());
-        Cookie cookie = new Cookie(Constant.RedisKeys.REFRESH_TOKEN.getValueRedisKey(), refreshToken);
-        cookie.setHttpOnly(true);
-        cookie.setSecure(false);
-        cookie.setMaxAge(86400000);
-        response.addCookie(cookie);
-        addMessageToAuthQueue(user.getUserName(), accessToken, refreshToken, listAuthorities);
-        AuthResponseData authResponseData = AuthResponseData.builder()
-                .userId(user.getId())
-                .urlAvatar(user.getUrlAvatar())
-                .firstName(user.getFirstName())
-                .lastName(user.getLastName())
-                .accessToken(accessToken)
-                .isComplete(user.getIsComplete())
-                .build();
-        return authResponseData;
-    }
-    public ResponseEntity<String> sendMailResetPassword(String email) {
-        String token = TokenGenerator.generateToken(150);
-        mailPublish.pushEventToQueue(email, token);
-        return ResponseEntity.ok("Password reset email sent successfully!!");
-    }
 
-    public ApiResponse<String> resetPassword(ResetPasswordDTO resetPasswordDTO) {
+    public Map<String, Object> sendMailResetPassword(String email, String transactionId) {
+        Map<String, Object> responseData = new HashMap<>();
+        Result result = Result.Ok();
         try {
+            if (!StringUtils.hasText(email)) {
+                result = new Result(ResponseCode.REQUEST_DATA_MISSING.getCode(), false, ResponseCode.REQUEST_DATA_MISSING.getMessage());
+                responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+                return responseData;
+            }
+            String token = TokenGenerator.generateToken(150);
+            mailPublish.pushEventToQueue(email, token);
+            responseData.put(Constant.RESPONSE_KEY.DATA, "Password reset email sent successfully!!");
+        } catch (Exception e) {
+            log.error(Constant.MESSAGE_LOG, transactionId, "Xảy ra ngoại lệ khi gửi mail reset mật khẩu", e.getMessage());
+            result = Result.SYSTEM_ERR();
+        }
+        responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+        return responseData;
+    }
+
+    @Transactional
+    public Map<String, Object> resetPassword(ResetPasswordDTO resetPasswordDTO, BindingResult bindingResult, String transactionId) {
+        Map<String, Object> responseData = new HashMap<>();
+        Result result = Result.Ok();
+        try {
+            if (bindingResult.hasErrors()) {
+                result = new Result(ResponseCode.REQUEST_DATA_MISSING.getCode(), false, ResponseCode.REQUEST_DATA_MISSING.getMessage());
+                responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+                return responseData;
+            }
             String authorizationToken = redisService.getValueAndRemove(resetPasswordDTO.getEmail());
             if (authorizationToken.equalsIgnoreCase(resetPasswordDTO.getAuthorization())) {
                 userRepositoryJPA.updatePasswordByEmail(resetPasswordDTO.getEmail(), passwordEncoder.encode(resetPasswordDTO.getPassword()));
-                return ApiResponse.<String>builder()
-                        .data("Reset password is successfully")
-                        .error(Map.of())
-                        .code(200)
-                        .build();
             } else {
-                return ApiResponse.<String>builder()
-                        .data("")
-                        .error(Map.of("AuthorizationToken", "Token is not valid"))
-                        .code(400)
-                        .build();
+                result = new Result(ResponseCode.TOKEN_RESET_PASSWORD_NOT_ALLOW.getCode(), false, ResponseCode.TOKEN_RESET_PASSWORD_NOT_ALLOW.getMessage());
+                responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+                return responseData;
             }
         } catch (Exception e) {
-            return ApiResponse.<String>builder()
-                    .data("")
-                    .error(Map.of("Server", "Server is error"))
-                    .code(400)
-                    .build();
+            log.error(Constant.MESSAGE_LOG, transactionId, "Xảy ra ngoại lệ khi reset mật khẩu", e.getMessage());
+            result = Result.SYSTEM_ERR();
         }
-    }
-    public void logout(String refreshToken) {
-        publishLogoutEvent(refreshToken, Constant.AuthEventType.LOGOUT);
+        responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+        return responseData;
     }
 
-    public void logoutAll(String refreshToken) {
-        publishLogoutEvent(refreshToken, Constant.AuthEventType.LOGOUT_ALL);
+    public Map<String, Object> logout(String refreshToken, String transactionId) {
+        Map<String, Object> responseData = new HashMap<>();
+        Result result = Result.Ok();
+        try {
+            if (!StringUtils.hasText(refreshToken)) {
+                result = new Result(ResponseCode.REQUEST_DATA_MISSING.getCode(), false, ResponseCode.REQUEST_DATA_MISSING.getMessage());
+                responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+                return responseData;
+            }
+            publishLogoutEvent(refreshToken, Constant.AuthEventType.LOGOUT);
+        } catch (Exception e) {
+            log.error(Constant.MESSAGE_LOG, transactionId, "Xảy ra ngoại lệ khi đăng xuất khỏi thiết bị", e.getMessage());
+            result = Result.SYSTEM_ERR();
+        }
+        responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+        return responseData;
+    }
+
+    public Map<String, Object> logoutAll(String refreshToken, String transactionId) {
+        Map<String, Object> responseData = new HashMap<>();
+        Result result = Result.Ok();
+        try {
+            if (!StringUtils.hasText(refreshToken)) {
+                result = new Result(ResponseCode.REQUEST_DATA_MISSING.getCode(), false, ResponseCode.REQUEST_DATA_MISSING.getMessage());
+                responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+                return responseData;
+            }
+            publishLogoutEvent(refreshToken, Constant.AuthEventType.LOGOUT_ALL);
+        } catch (Exception e) {
+            log.error(Constant.MESSAGE_LOG, transactionId, "Xảy ra ngoại lệ khi reset mật khẩu", e.getMessage());
+            result = Result.SYSTEM_ERR();
+        }
+        responseData.put(Constant.RESPONSE_KEY.RESULT, result);
+        return responseData;
     }
 
     private void publishLogoutEvent(String refreshToken, Constant.AuthEventType eventType) {
@@ -266,13 +353,43 @@ public class AuthService {
                 .evenType(eventType.getGetAuthEventType())
                 .build();
 
-        try {
-            authPublish.publishEvent(jsonMapper.objectToJson(pubSubMessage));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+//            authPublish.publishEvent(jsonMapper.objectToJson(pubSubMessage));
+//        } catch (JsonProcessingException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 
+    private AuthResponseData getResponseAuthData(User user, HttpServletResponse response) {
+        Collection<GrantedAuthority> listAuthorities = roleRepositoryJPA.
+                findRoleByUsername(user.getUserName())
+                .stream()
+                .map(e -> (GrantedAuthority) e::getRoleName).collect(Collectors.toList());
+        var accessToken = jwtService.generateAccessToken(new HashMap<>(), user.getUserName(), listAuthorities);
+        var refreshToken = jwtService.generateRefreshToken(user.getUserName());
+        Cookie cookie = new Cookie(Constant.RedisKeys.REFRESH_TOKEN.getValueRedisKey(), refreshToken);
+        cookie.setHttpOnly(true);
+        cookie.setSecure(false);
+        cookie.setMaxAge(86400000);
+        response.addCookie(cookie);
+        addMessageToAuthQueue(user.getUserName(), accessToken, refreshToken, listAuthorities);
+        AuthResponseData authResponseData = AuthResponseData.builder()
+                .userId(user.getId())
+                .urlAvatar(user.getUrlAvatar())
+                .firstName(user.getFirstName())
+                .lastName(user.getLastName())
+                .accessToken(accessToken)
+                .isComplete(user.getIsComplete())
+                .build();
+        AuthRedisDTO authRedisDTO = AuthRedisDTO.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .username(user.getUserName())
+                .authorities(listAuthorities)
+                .build();
+        authRedisService.addNewDataToSet(user.getUserName(), authRedisDTO);
+        return authResponseData;
+    }
 
     private void addMessageToAuthQueue(String username,
                                        String accessToken,
@@ -291,10 +408,10 @@ public class AuthService {
                 .attributes(Map.of())
                 .evenType(Constant.AuthEventType.SAVE_TOKEN_LOGIN.getGetAuthEventType())
                 .build();
-        try {
-            authPublish.publishEvent(jsonMapper.objectToJson(pubSubMessage));
-        } catch (JsonProcessingException e) {
-            throw new RuntimeException(e);
-        }
+//        try {
+////            authPublish.publishEvent(jsonMapper.objectToJson(pubSubMessage));
+//        } catch (JsonProcessingException e) {
+//            throw new RuntimeException(e);
+//        }
     }
 }

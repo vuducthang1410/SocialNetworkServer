@@ -15,6 +15,18 @@ import java.util.stream.Collectors;
 public class AuthRedisService {
     private final RedisTemplate<String, Object> redisTemplate;
 
+    public void saveNewAccessTokenToServer(AuthRedisDTO newAuthUserDto) {
+        try {
+            List<AuthRedisDTO> listAuthUserData = getDataInSetByKey(newAuthUserDto.getUsername());
+            AuthRedisDTO oldAuthUserDto = listAuthUserData.stream().filter(e -> e.getRefreshToken().equalsIgnoreCase(newAuthUserDto.getRefreshToken())).findFirst().get();
+            deleteToken(oldAuthUserDto);
+            addNewDataToSet(newAuthUserDto.getUsername(), newAuthUserDto);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+    }
+
     public List<AuthRedisDTO> getDataInSetByKey(String key) {
         SetOperations<String, Object> setOfValue = redisTemplate.opsForSet();
         Set<Object> data = setOfValue.members(key);

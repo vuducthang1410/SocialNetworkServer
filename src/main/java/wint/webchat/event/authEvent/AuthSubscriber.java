@@ -21,14 +21,11 @@ public class AuthSubscriber {
 
     @Async
     public void saveTokenToServer(LinkedHashMap<String, Object> data) throws UnsupportedEncodingException, JsonProcessingException {
-        SetOperations<String, Object> listOfValue = redisTemplate.opsForSet();
         AuthRedisDTO authRedisDTO = authRedisService.getAuthRedisDTO(data);
         redisTemplate.opsForSet().add(authRedisDTO.getUsername(), authRedisDTO);
     }
-    public void saveNewAccessTokenToServer(LinkedHashMap<String, Object> data) throws UnsupportedEncodingException, JsonProcessingException {
+    public void saveNewAccessTokenToServer(AuthRedisDTO newAuthUserDto) {
         try {
-            SetOperations<String, Object> listOfValue = redisTemplate.opsForSet();
-            AuthRedisDTO newAuthUserDto = authRedisService.getAuthRedisDTO(data);
             List<AuthRedisDTO> listAuthUserData=authRedisService.getDataInSetByKey(newAuthUserDto.getUsername());
             AuthRedisDTO oldAuthUserDto=listAuthUserData.stream().filter(e->e.getRefreshToken().equalsIgnoreCase(newAuthUserDto.getRefreshToken())).findFirst().get();
             authRedisService.deleteToken(oldAuthUserDto);

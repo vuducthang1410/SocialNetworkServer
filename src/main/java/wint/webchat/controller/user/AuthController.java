@@ -1,27 +1,28 @@
 package wint.webchat.controller.user;
 
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
-import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.bind.annotation.CookieValue;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import wint.webchat.common.Constant;
-import wint.webchat.modelDTO.UserDataRequest;
-import wint.webchat.modelDTO.reponse.ApiResponse;
-import wint.webchat.modelDTO.reponse.AuthResponseData;
+import wint.webchat.common.ResponseData;
 import wint.webchat.modelDTO.request.AuthLoginDTO;
 import wint.webchat.modelDTO.request.AuthSignUpDTO;
 import wint.webchat.modelDTO.request.ResetPasswordDTO;
 import wint.webchat.service.Impl.AuthService;
 
-import java.util.*;
+import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
@@ -29,88 +30,89 @@ import java.util.concurrent.CompletableFuture;
 @RequiredArgsConstructor
 public class AuthController {
     private final AuthService authService;
-    @PostMapping(value = "/signUp")
-    public ResponseEntity<String> register(@Valid @RequestBody AuthSignUpDTO authSignUpDTO,
-                                           BindingResult bindingResult) {
-        bindingResult.getAllErrors().forEach(e -> System.out.println(e.getDefaultMessage()));
-        if (bindingResult.hasErrors()) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Validation failed");
-        }
-        return authService.signUp(authSignUpDTO);
+
+    @PostMapping(value = "/sign-up")
+    public CompletableFuture<ResponseData<Map<String, Object>>> register(
+            @Valid @RequestBody AuthSignUpDTO authSignUpDTO,
+            BindingResult bindingResult,
+            @NonNull @RequestHeader(Constant.TRANSACTION_ID_KEY) String transactionId) {
+        return CompletableFuture.completedFuture(ResponseData.createResponse(
+                authService.signUp(authSignUpDTO, transactionId, bindingResult))
+        );
     }
 
     @PostMapping("/sign-in")
-    public ApiResponse<AuthResponseData> signIn(@RequestBody AuthLoginDTO signUpRequest,
-                                                HttpServletResponse response) {
-        return authService.signIn(signUpRequest, response);
+    public CompletableFuture<ResponseData<Map<String, Object>>> signIn(
+            @RequestBody AuthLoginDTO signUpRequest,
+            HttpServletResponse response,
+            BindingResult bindingResult,
+            @NonNull @RequestHeader(Constant.TRANSACTION_ID_KEY) String transactionId) {
+        return CompletableFuture.completedFuture(ResponseData.createResponse(
+                authService.signIn(signUpRequest, response, bindingResult, transactionId))
+        );
     }
 
     @PostMapping("/refresh-token")
-    public ApiResponse<Map<String, String>> refreshToken(HttpServletRequest request) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies != null) {
-            Optional<Cookie> cookie = Arrays.stream(cookies)
-                    .filter(r -> r.getName().equals(Constant.RedisKeys.REFRESH_TOKEN.getValueRedisKey()))
-                    .findFirst();
-            if (cookie.isPresent()) {
-                return authService.refreshToken(cookie.get().getValue());
-            } else {
-                return ApiResponse.<Map<String, String>>builder()
-                        .code(HttpStatus.FORBIDDEN.value())
-                        .error(Map.of("cookie", "not found refresh token in cookie"))
-                        .build();
-            }
-        }
-        return ApiResponse.<Map<String, String>>builder()
-                .code(HttpStatus.BAD_REQUEST.value())
-                .error(Map.of("cookie", "not found cookie"))
-                .build();
+    public CompletableFuture<ResponseData<Map<String, Object>>> refreshToken(
+            HttpServletRequest request,
+            @NonNull @RequestHeader(Constant.TRANSACTION_ID_KEY) String transactionId
+    ) {
+        return CompletableFuture.completedFuture(ResponseData.createResponse(
+                authService.refreshToken(request, transactionId))
+        );
     }
 
     @PostMapping("/forget-password")
-    public CompletableFuture<ResponseEntity<String>> forgetPassword(@RequestParam("email") String email) {
-        return CompletableFuture.completedFuture(authService.sendMailResetPassword(email));
+    public CompletableFuture<ResponseData<Map<String, Object>>> forgetPassword(
+            @RequestParam("email") String email,
+            @NonNull @RequestHeader(Constant.TRANSACTION_ID_KEY) String transactionId) {
+        return CompletableFuture.completedFuture(
+                ResponseData.createResponse(
+                        authService.sendMailResetPassword(email, transactionId)
+                ));
     }
 
     @PostMapping("/reset-password")
-    public ApiResponse<String> resetPassword(@Valid @RequestBody(required = false) ResetPasswordDTO resetPasswordDTO, BindingResult bindingResult) {
-        if (resetPasswordDTO == null) {
-            return ApiResponse.<String>builder()
-                    .code(HttpStatus.BAD_REQUEST.value())
-                    .error(Map.of("Object", "Request body is missing or empty"))
-                    .build();
-        }
-        if (bindingResult.hasErrors()) {
-            Map<String, String> listError = new HashMap<>();
-            bindingResult.getFieldErrors().forEach(e -> listError.put(e.getField(), e.getDefaultMessage()));
-            return ApiResponse.<String>builder()
-                    .data("")
-                    .error(listError)
-                    .code(400)
-                    .build();
-        }
-
-        return authService.resetPassword(resetPasswordDTO);
+    public CompletableFuture<ResponseData<Map<String, Object>>> resetPassword(
+            @Valid @RequestBody(required = false) ResetPasswordDTO resetPasswordDTO,
+            BindingResult bindingResult,
+            @NonNull @RequestHeader(Constant.TRANSACTION_ID_KEY) String transactionId) {
+        return CompletableFuture.completedFuture(
+                ResponseData.createResponse(
+                        authService.resetPassword(resetPasswordDTO, bindingResult, transactionId)
+                ));
     }
 
     @PostMapping("/sign-in-with-google")
-    public ApiResponse<AuthResponseData> signInWithGoogle(@RequestParam(value = "code") String code,
-                                                          HttpServletResponse response) {
-        return authService.signInWithGoogle(code, response);
+    public CompletableFuture<ResponseData<Map<String, Object>>> signInWithGoogle(
+            @RequestParam(value = "code") String code,
+            HttpServletResponse response,
+            @NonNull @RequestHeader(Constant.TRANSACTION_ID_KEY) String transactionId) {
+        return CompletableFuture.completedFuture(
+                ResponseData.createResponse(authService.signInWithGoogle(code, response,transactionId)));
     }
 
     @GetMapping("/url-login/{type}")
-    public ResponseEntity<String> getAuthUrl(@NonNull @PathVariable("type") String type) {
-        return authService.getAuthUrl(type);
+    public CompletableFuture<ResponseData<Map<String, Object>>> getAuthUrl(
+            @NonNull @PathVariable("type") String type,
+            @NonNull @RequestHeader(Constant.TRANSACTION_ID_KEY) String transactionId) {
+        return CompletableFuture.completedFuture(ResponseData.createResponse(authService.getAuthUrl(type,transactionId)));
     }
+
     @PostMapping("/logout")
-    public ResponseEntity<String> logout(@CookieValue("REFRESH_TOKEN") String refreshToken){
-        authService.logout(refreshToken);
-        return ResponseEntity.ok("successfully");
+    public CompletableFuture<ResponseData<Map<String, Object>>> logout(
+            @CookieValue("REFRESH_TOKEN") String refreshToken,
+            @NonNull @RequestHeader(Constant.TRANSACTION_ID_KEY) String transactionId
+    ) {
+
+        return CompletableFuture.completedFuture(ResponseData.createResponse(authService.logout(refreshToken, transactionId)));
     }
+
     @PostMapping("/logout-all")
-    public ResponseEntity<String> logoutAll(@CookieValue("REFRESH_TOKEN") String refreshToken){
-        authService.logoutAll(refreshToken);
-        return ResponseEntity.ok("successfully");
+    public CompletableFuture<ResponseData<Map<String, Object>>> logoutAll(
+            @CookieValue("REFRESH_TOKEN") String refreshToken,
+            @NonNull @RequestHeader(Constant.TRANSACTION_ID_KEY) String transactionId
+    ) {
+        return CompletableFuture.completedFuture(ResponseData.createResponse(authService.logoutAll(refreshToken, transactionId)));
     }
 }

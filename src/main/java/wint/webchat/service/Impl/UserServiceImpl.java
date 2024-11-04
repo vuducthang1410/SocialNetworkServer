@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import wint.webchat.common.Constant;
 import wint.webchat.entities.user.User;
 import wint.webchat.google.IGoogleDriveFile;
 import wint.webchat.mapper.JsonMapper;
@@ -83,6 +84,7 @@ public class UserServiceImpl implements IUserService {
                 user.setEmail(userDataRequest.getEmail());
                 user.setDescribe(userDataRequest.getDescriber());
                 user.setIdAddress(userDataRequest.getAddress());
+                user.setIsComplete(Constant.STATUS.YES);
                 userRepository.update(user);
                 return ApiResponse.<String>builder()
                         .code(HttpStatus.OK.value())
