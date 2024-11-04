@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import wint.webchat.entities.BaseEntity;
 import wint.webchat.entities.user.User;
 
 import java.io.Serializable;
@@ -16,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 @Setter
 @NoArgsConstructor
-public class Post implements Serializable {
+public class Post extends BaseEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "ID_POST", nullable = false)
@@ -25,17 +26,9 @@ public class Post implements Serializable {
     @Column(name="ACCESS_RANGE",length = 500)
     private String accessRange;
     @Basic
-    @Column(name = "IS_DELETE", nullable = true)
-    private Boolean isDelete;
-    @Basic
-    @Column(name = "CAPTION", nullable = true, length = 2147483647,columnDefinition = "nvarchar")
+    @Column(name = "CAPTION", length = 20000,columnDefinition = "nvarchar")
     private String caption;
     @Basic
-    @Column(name = "TIME_CREATE", nullable = true)
-    private Timestamp createTime;
-    @Basic
-    @Column(name = "type_post_id", nullable = true, length = 10)
-    private String typePostId;
-    @Column(name = "CREATE_BY")
-    private String createBy;
+    @Column(name = "type_post_id", length = 50)
+    private String typePostId;;
 }

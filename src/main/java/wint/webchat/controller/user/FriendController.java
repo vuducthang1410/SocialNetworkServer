@@ -2,16 +2,19 @@ package wint.webchat.controller.user;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
-import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import wint.webchat.modelDTO.reponse.ApiResponse;
 import wint.webchat.modelDTO.reponse.FriendDTO;
 import wint.webchat.modelDTO.request.FriendIdDTO;
-import wint.webchat.repositories.Impl.FriendRepositoryImpl;
 import wint.webchat.service.IFriendService;
 import wint.webchat.service.IUserService;
 
@@ -24,17 +27,17 @@ public class FriendController {
     private final IFriendService friendService;
     private final SimpMessagingTemplate simpMessagingTemplate;
     private final IUserService iUserService;
-    private final FriendRepositoryImpl friendRepository;
     @PersistenceContext
     private EntityManager entityManager;
 
-    @GetMapping("/get-list-friend")
-    public ApiResponse<List<FriendDTO>> getListFriendById(
-            @RequestParam int userId,
-            @RequestParam int start,
-            @RequestParam int amount) {
-        return friendService.getListFriendById((long) userId, start, amount);
-    }
+//    @GetMapping("/get-list-friend")
+//    public CompletableFuture<ResponseData<Map<String, Object>>>  getListFriendById(
+//            @RequestParam(name = "userId") String userId,
+//            @RequestParam(name = "start",required = false,defaultValue = "0") int start,
+//            @RequestParam(name = "amount",required = false,defaultValue = "10") int amount,
+//            @NonNull @RequestHeader(Constant.TRANSACTION_ID_KEY) String transactionId) {
+//        return friendService.getListFriendById(userId, start, amount,transactionId);
+//    }
 
     @GetMapping("/get-list-invitation-receiver")
     public ApiResponse<List<FriendDTO>> getListInvitationReceiverById(
@@ -82,37 +85,19 @@ public class FriendController {
                 friendIdDTO.getReceiverId().toString()
                 , "/accept-friend", "Lời mời kết bạn đã được chấp nhận");
     }
-    public List<FriendDTO> getList(
-            @RequestParam int userId,
-            @RequestParam int start,
-            @RequestParam int amount
-    ){
-       return friendRepository.getListNoFriend((long)userId,start,amount);
-    }
-    @GetMapping("/search-user")
-    public Object search(@RequestParam("email")String email){
-        String sql= """
-                select u.id,u.fullName,u.urlAvatar from User u where u.email=:email
-                """;
-        Query query=entityManager.createQuery(sql);
-        query.setParameter("email",email);
-        var result=query.getResultList();
-        return result.size()==0?null:result.stream().findFirst().get();
-    }
-    @GetMapping("/get-infor")
-    public Object getInfor(@RequestParam("userId")Long userId,@RequestParam("userIdSearch")Long userIdSearch){
-        String sql= """
-                SELECT u.id,u.urlAvatar,u.fullName,
-                 (select case when count(f) > 0 then true else false end from Friend f where
-                 (f.userInvitationReceiver.id=:userIdSearch
-                 and f.userInvitationSender.id=:userId)
-                 or(f.userInvitationSender.id=:userIdSearch
-                 and f.userInvitationReceiver.id=:userId)) as isFriend from User u where u.id=:userIdSearch
-                """;
-        Query query=entityManager.createQuery(sql);
-        query.setParameter("userId",userId);
-        query.setParameter("userIdSearch",userIdSearch);
-        var result=query.getResultList();
-        return result.size()==0?null:result.stream().findFirst();
-    }
+//    public List<FriendDTO> getList(
+//            @RequestParam int userId,
+//            @RequestParam int start,
+//            @RequestParam int amount
+//    ){
+//       return friendRepository.getListNoFriend((long)userId,start,amount);
+//    }
+//    @GetMapping("/search-user")
+//    public Object search(@RequestParam("email")String email){
+//
+//    }
+//    @GetMapping("/get-info")
+//    public Object getInfo(@RequestParam("userId")Long userId,@RequestParam("userIdSearch")Long userIdSearch){
+//
+//    }
 }

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UuidGenerator;
+import wint.webchat.entities.BaseEntity;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -15,18 +16,11 @@ import java.sql.Timestamp;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Search implements Serializable {
+public class Search extends BaseEntity implements Serializable {
     @Id
-    @UuidGenerator(style = UuidGenerator.Style.RANDOM)
+    @UuidGenerator(style = UuidGenerator.Style.AUTO)
     private String id;
-    @Column(name = "CREATE_TIME")
-    @CreationTimestamp
-    private Timestamp timeSearch;
     @Column(name = "content",columnDefinition = "nvarchar(500)")
     private String content;
-//    @ManyToOne(cascade = CascadeType.PERSIST,fetch = FetchType.LAZY)
-//    @JoinColumn(name = "SEARCH_BY")
-    @Column(name = "SEARCH_BY")
-    private String searchBy;
 
 }

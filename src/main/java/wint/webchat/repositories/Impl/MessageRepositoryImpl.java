@@ -24,9 +24,10 @@ public class MessageRepositoryImpl implements IMessageRepository {
     }
 
     @Override
-    public ResponseEntity<String> delete(int id) {
+    public ResponseEntity<String> delete(String id) {
         return null;
     }
+
 
     @Override
     public ResponseEntity<String> update(Message message) {
@@ -34,9 +35,10 @@ public class MessageRepositoryImpl implements IMessageRepository {
     }
 
     @Override
-    public List<Object[]> getList(Long id, int startGetter, int amountGet) {
+    public List<Object[]> getList(String id, int startGetter, int amountGet) {
         return null;
     }
+
     @Override
     public List<MessageDTO>  getListMessageByConversationId(int amount,Long conversationId,int start){
 //        String sql= """

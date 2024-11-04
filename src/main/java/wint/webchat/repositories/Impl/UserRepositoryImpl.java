@@ -31,9 +31,10 @@ public class UserRepositoryImpl implements IUserRepository {
     }
 
     @Override
-    public ResponseEntity<String> delete(int id) {
+    public ResponseEntity<String> delete(String id) {
         return null;
     }
+
 
     @Override
     public ResponseEntity<String> update(User user) {
@@ -42,9 +43,10 @@ public class UserRepositoryImpl implements IUserRepository {
     }
 
     @Override
-    public List<Object[]> getList(Long id, int startGetter, int AmountGet) {
+    public List<Object[]> getList(String id, int startGetter, int amountGet) {
         return null;
     }
+
 
     @Override
     public List<ProfileDTO> getProfile(long id) {

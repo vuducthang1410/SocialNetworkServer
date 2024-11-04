@@ -3,13 +3,14 @@ package wint.webchat.entities.post;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
+import wint.webchat.entities.BaseEntity;
 
 import java.io.Serializable;
 
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
-public class Interact implements Serializable {
+public class Interact extends BaseEntity implements Serializable {
     @Id
     @Column(name ="user_id_interact")
     @GeneratedValue(strategy = GenerationType.UUID)

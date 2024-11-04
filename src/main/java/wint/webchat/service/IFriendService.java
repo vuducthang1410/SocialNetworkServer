@@ -7,7 +7,7 @@ import wint.webchat.modelDTO.reponse.FriendDTO;
 
 import java.util.List;
 public interface IFriendService {
-    ApiResponse<List<FriendDTO>> getListFriendById(Long id, int startGet, int amountGet);
+    ApiResponse<List<FriendDTO>> getListFriendById(String id, int startGet, int amountGet,String transactionId);
     ApiResponse<List<FriendDTO>> getInvitationsReceivedById(Long id, int start, int amount);
     ApiResponse<List<FriendDTO>> getInvitationsSentById(Long id, int start, int amount);
     ApiResponse<String> sendFriendInvitation(Long senderId, Long receiverId);

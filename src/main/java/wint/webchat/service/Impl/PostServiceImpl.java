@@ -22,7 +22,7 @@ public class PostServiceImpl implements IPostService {
     }
 
     @Override
-    public List<PostDTO> getListPost(Long id, int startGetter, int amountGet) {
+    public List<PostDTO> getListPost(String id, int startGetter, int amountGet) {
         return postRepository.getList(id,startGetter,amountGet)
                 .stream()
                 .map(mapperObj::getPostDTO)

@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import wint.webchat.entities.BaseEntity;
 import wint.webchat.entities.user.User;
 
 import java.io.Serializable;
@@ -16,13 +17,15 @@ import java.io.Serializable;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "tbl_member_group")
-public class MemberGroup implements Serializable {
+public class MemberGroup extends BaseEntity implements Serializable {
     @Id
-    @Column(name = "USER_ID")
+    @Column(name = "ID",length = 50)
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
+    @Column(name = "USER_ID",length = 50)
     private String userMember;
 
-    @Id
-    @Column(name = "GROUP_ID")
+    @Column(name = "GROUP_ID",length = 50)
     private String groupMember;
 
 

@@ -31,7 +31,7 @@ public class Constant {
     public enum AccountType {
         SYSTEM("SYSTEM"),
         GOOGLE("GOOGLE");
-        private String accountType;
+        private final String accountType;
     }
     @NoArgsConstructor
     @AllArgsConstructor
@@ -45,7 +45,7 @@ public class Constant {
     public enum Media {
         VIDEO(1),
         IMAGE(2);
-        private int valueMedia;
+        private final int valueMedia;
     }
     @Getter
     @AllArgsConstructor
@@ -85,7 +85,7 @@ public class Constant {
         private String getAuthEventType;
     }
     public interface STATUS{
-        public static final String YES="Y";
-        public static final String NO="N";
+        String YES="Y";
+        String NO="N";
     }
 }

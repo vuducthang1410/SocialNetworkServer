@@ -7,15 +7,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wint.webchat.entities.user.Friend;
-import wint.webchat.entities.user.User;
 import wint.webchat.mapper.JsonMapper;
 import wint.webchat.modelDTO.reponse.ApiResponse;
 import wint.webchat.modelDTO.reponse.FriendDTO;
 import wint.webchat.repositories.IFriendRepository;
 import wint.webchat.repositories.IUserRepositoryJPA;
 import wint.webchat.service.IFriendService;
-import java.sql.Timestamp;
-import java.util.*;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
@@ -27,17 +28,21 @@ public class FriendServiceImpl implements IFriendService {
     private final JsonMapper mapper;
 
     @Override
-    public ApiResponse<List<FriendDTO>> getListFriendById(Long id, int startGet, int amount) {
-        return buildFriendApiResponse(() -> friendRepository.getListFriendById(id, startGet * amount, amount), amount);
+    public ApiResponse<List<FriendDTO>> getListFriendById(String id, int startGet, int amount, String transactionId) {
+//        return buildFriendApiResponse(() -> friendRepository.getListFriendById(id, startGet * amount, amount), amount);
+        return null;
     }
+
     @Override
     public ApiResponse<List<FriendDTO>> getInvitationsReceivedById(Long id, int start, int amount) {
-        return buildFriendApiResponse(() -> friendRepository.getInvitationsReceivedById(id, start * amount, amount), amount);
+//        return buildFriendApiResponse(() -> friendRepository.getInvitationsReceivedById(id, start * amount, amount), amount);
+        return null;
     }
 
     @Override
     public ApiResponse<List<FriendDTO>> getInvitationsSentById(Long id, int start, int amount) {
-        return buildFriendApiResponse(() -> friendRepository.getInvitationsSentById(id, start * amount, amount), amount);
+//        return buildFriendApiResponse(() -> friendRepository.getInvitationsSentById(id, start * amount, amount), amount);
+        return null;
     }
 
     //          accept	refuse	delete
@@ -49,17 +54,17 @@ public class FriendServiceImpl implements IFriendService {
     @Modifying
     @Transactional
     public ApiResponse<String> sendFriendInvitation(Long senderId, Long receiverId) {
-        var friendList = friendRepository.getFriendById(senderId, receiverId);
-        if (!friendList.isEmpty()) {
-            Friend friend = friendList.stream().findFirst().get();
-            if (friend.getIsAccept()) return ApiResponse.<String>builder()
-                    .code(200)
-                    .error(Map.of("Refuse", "already friends"))
-                    .build();
-
-            if (friend.getIsRefuse()) {
-                //if the recipient has never declined the sender's invitation
-                //if condition = false ,send invitation to receiver else return
+//        var friendList = friendRepository.getFriendById(senderId, receiverId);
+//        if (!friendList.isEmpty()) {
+//            Friend friend = friendList.stream().findFirst().get();
+//            if (friend.getIsAccept()) return ApiResponse.<String>builder()
+//                    .code(200)
+//                    .error(Map.of("Refuse", "already friends"))
+//                    .build();
+//
+//            if (friend.getIsRefuse()) {
+        //if the recipient has never declined the sender's invitation
+        //if condition = false ,send invitation to receiver else return
 //                if (!Objects.equals(friend.getUserInvitationSender().getId(), senderId)) {
 //                    friend.setTimeSend(new Timestamp(new Date().getTime()));
 //                    friend.setIsAccept(false);
@@ -75,13 +80,13 @@ public class FriendServiceImpl implements IFriendService {
 //                            .code(200)
 //                            .error(Collections.emptyMap())
 //                            .build();
-                } else {
-                    return ApiResponse.<String>builder()
-                            .code(200)
-                            .error(Map.of("Refuse", "already friends"))
-                            .build();
-                }
-            } else {
+//            } else {
+//                return ApiResponse.<String>builder()
+//                        .code(200)
+//                        .error(Map.of("Refuse", "already friends"))
+//                        .build();
+//            }
+//        } else {
 //                if friend invitation not delele , friend invitation is exist
 //                if (friend.getIsDelete()) {
 //                    User user1 = friend.getUserInvitationReceiver();
@@ -113,60 +118,63 @@ public class FriendServiceImpl implements IFriendService {
 //                            .error(Map.of("Refuse", "The friend request already exists"))
 //                            .build();
 //                }
-            }
+        return null;
+    }
 //        }
-        var userSender = userRepositoryJPA.findUsersById(senderId);
-        var userReceiver = userRepositoryJPA.findUsersById(receiverId);
-        if (userSender.isPresent() && userReceiver.isPresent()) {
-            Friend friend = new Friend();
-            friend.setIsDelete(false);
+//        var userSender = userRepositoryJPA.findUsersById(senderId);
+//        var userReceiver = userRepositoryJPA.findUsersById(receiverId);
+//        if (userSender.isPresent() && userReceiver.isPresent()) {
+//        Friend friend = new Friend();
+//        friend.setIsDelete(false);
 //            friend.setUserInvitationReceiver(userReceiver.get());
 //            friend.setUserInvitationSender(userSender.get());
 //            friend.setTimeSend(new Timestamp(new Date().getTime()));
-            friend.setIsAccept(false);
-            friend.setIsRefuse(false);
-            friendRepository.add(friend);
-            return ApiResponse.<String>builder()
-                    .code(200)
-                    .error(Collections.emptyMap())
-                    .build();
-        }
-        return ApiResponse.<String>builder()
-                .code(200)
-                .error(Map.of("Failure", "not found user"))
-                .build();
-    }
+//        friend.setIsAccept(false);
+//        friend.setIsRefuse(false);
+//        friendRepository.add(friend);
+//        return ApiResponse.<String>builder()
+//                .code(200)
+//                .error(Collections.emptyMap())
+//                .build();
+//        }
+//        return ApiResponse.<String>builder()
+//                .code(200)
+//                .error(Map.of("Failure", "not found user"))
+//                .build();
+
+//    }
 
     @Override
     @Transactional
     @Modifying
     public ApiResponse<String> deleteFriendRelationship(Long userId1, Long userId2) {
-        var friendList = friendRepository.getFriendById(userId1, userId2);
-        if (!friendList.isEmpty()) {
-            Friend friend = friendList.stream().findFirst().get();
-            friend.setIsDelete(true);
-            friend.setIsAccept(false);
-            friend.setIsRefuse(false);
-//            friend.setTimeSend(new Timestamp(new Date().getTime()));
-            friendRepository.update(friend);
-            return ApiResponse.<String>builder()
-                    .code(200)
-                    .error(Collections.emptyMap())
-                    .build();
-        }
-        return ApiResponse.<String>builder()
-                .code(200)
-                .error(Map.of("Failure", "not found friend"))
-                .build();
+//        var friendList = friendRepository.getFriendById(userId1, userId2);
+//        if (!friendList.isEmpty()) {
+//            Friend friend = friendList.stream().findFirst().get();
+//            friend.setIsDelete(true);
+//            friend.setIsAccept(false);
+//            friend.setIsRefuse(false);
+////            friend.setTimeSend(new Timestamp(new Date().getTime()));
+//            friendRepository.update(friend);
+//            return ApiResponse.<String>builder()
+//                    .code(200)
+//                    .error(Collections.emptyMap())
+//                    .build();
+//        }
+//        return ApiResponse.<String>builder()
+//                .code(200)
+//                .error(Map.of("Failure", "not found friend"))
+//                .build();
+        return null;
     }
 
     @Override
     @Transactional
     @Modifying
     public ApiResponse<String> deleteInvitations(Long senderId, Long receiverId) {
-        var friendList = friendRepository.getFriendById(senderId, receiverId);
-        if (!friendList.isEmpty()) {
-            Friend friend = friendList.stream().findFirst().get();
+//        var friendList = friendRepository.getFriendById(senderId, receiverId);
+//        if (!friendList.isEmpty()) {
+//            Friend friend = friendList.stream().findFirst().get();
 //            if (friend.getUserInvitationSender().getId().equals(senderId)) {
 //                friend.setIsDelete(true);
 //                friend.setIsRefuse(false);
@@ -174,41 +182,43 @@ public class FriendServiceImpl implements IFriendService {
 //                friend.setIsDelete(false);
 //                friend.setIsRefuse(true);
 //            }
-            friend.setIsAccept(false);
+//            friend.setIsAccept(false);
 //            friend.setTimeSend(new Timestamp(new Date().getTime()));
-            friendRepository.update(friend);
-            return ApiResponse.<String>builder()
-                    .code(200)
-                    .error(Collections.emptyMap())
-                    .build();
-        }
-        return ApiResponse.<String>builder()
-                .code(200)
-                .error(Map.of("Failure", "not found invitation friend"))
-                .build();
+//            friendRepository.update(friend);
+//            return ApiResponse.<String>builder()
+//                    .code(200)
+//                    .error(Collections.emptyMap())
+//                    .build();
+//        }
+//        return ApiResponse.<String>builder()
+//                .code(200)
+//                .error(Map.of("Failure", "not found invitation friend"))
+//                .build();
+        return null;
     }
 
     @Override
     @Transactional
     @Modifying
     public ApiResponse<String> acceptInvitationFriend(Long senderId, Long receiverId) {
-        var friendList = friendRepository.getFriendById(senderId, receiverId);
-        if (!friendList.isEmpty()) {
-            Friend friend = friendList.stream().findFirst().get();
-            friend.setIsDelete(false);
-            friend.setIsAccept(true);
-            friend.setIsRefuse(false);
-//            friend.setTimeSend(new Timestamp(new Date().getTime()));
-            friendRepository.update(friend);
-            return ApiResponse.<String>builder()
-                    .code(200)
-                    .error(Collections.emptyMap())
-                    .build();
-        }
-        return ApiResponse.<String>builder()
-                .code(200)
-                .error(Map.of("Failure", "not found invitation friend"))
-                .build();
+//        var friendList = friendRepository.getFriendById(senderId, receiverId);
+//        if (!friendList.isEmpty()) {
+//            Friend friend = friendList.stream().findFirst().get();
+//            friend.setIsDelete(false);
+//            friend.setIsAccept(true);
+//            friend.setIsRefuse(false);
+////            friend.setTimeSend(new Timestamp(new Date().getTime()));
+//            friendRepository.update(friend);
+//            return ApiResponse.<String>builder()
+//                    .code(200)
+//                    .error(Collections.emptyMap())
+//                    .build();
+//        }
+//        return ApiResponse.<String>builder()
+//                .code(200)
+//                .error(Map.of("Failure", "not found invitation friend"))
+//                .build();
+        return null;
     }
 
     private ApiResponse<List<FriendDTO>> buildFriendApiResponse(Supplier<List<FriendDTO>> friendListSupplier, int amount) {
@@ -227,9 +237,10 @@ public class FriendServiceImpl implements IFriendService {
                     .build();
         }
     }
+
     private ApiResponse<List<String>> buildFriendTest(Supplier<List<FriendDTO>> friendListSupplier, int amount) {
         List<FriendDTO> listFriend = friendListSupplier.get();
-        List<String> list=listFriend.stream().map(e-> {
+        List<String> list = listFriend.stream().map(e -> {
             try {
                 return mapper.objectToJson(e);
             } catch (JsonProcessingException ex) {

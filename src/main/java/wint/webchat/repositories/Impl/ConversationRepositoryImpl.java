@@ -24,9 +24,10 @@ public class ConversationRepositoryImpl implements IConversationRepository {
     }
 
     @Override
-    public ResponseEntity<String> delete(int id) {
+    public ResponseEntity<String> delete(String id) {
         return null;
     }
+
 
     @Override
     public ResponseEntity<String> update(Conversation conversation) {
@@ -34,9 +35,10 @@ public class ConversationRepositoryImpl implements IConversationRepository {
     }
 
     @Override
-    public List<Object[]> getList(Long id, int startGetter, int amountGet) {
+    public List<Object[]> getList(String id, int startGetter, int amountGet) {
         return null;
     }
+
 
     @Override
     public List<ConversationMessageDTO> getListConversation(Long id, int startGetter, int amountGet) {

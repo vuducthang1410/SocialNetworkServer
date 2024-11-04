@@ -6,6 +6,7 @@ import org.springframework.http.MediaType;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.simp.annotation.SendToUser;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import wint.webchat.modelDTO.reponse.ApiResponse;
@@ -20,7 +21,6 @@ import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
-//@RequestMapping("/api/message")
 public class MessageController {
     private final IMessageService messageService;
     private final MemberConversationRepository memberConversationRepository;
@@ -41,11 +41,11 @@ public class MessageController {
 
     @MessageMapping("/send-text-message")
     public void sendTextMessageToUser(@Payload TextMessageDTO textMessageDTO) {
-        Long userIdReceiver = memberConversationRepository.getUserIdByIdMemberConversationId(textMessageDTO.getMemberReceiverId());
-        MessageDTO messageDTO = messageService.saveMessage(textMessageDTO);
-
-        simpMessagingTemplate.convertAndSendToUser(userIdReceiver.toString(), "/message", messageDTO);
-        simpMessagingTemplate.convertAndSendToUser(textMessageDTO.getSenderId().toString(), "/message", messageDTO);
+//        Long userIdReceiver = memberConversationRepository.getUserIdByIdMemberConversationId(textMessageDTO.getMemberReceiverId());
+//        MessageDTO messageDTO = messageService.saveMessage(textMessageDTO);
+//
+//        simpMessagingTemplate.convertAndSendToUser(userIdReceiver.toString(), "/message", messageDTO);
+//        simpMessagingTemplate.convertAndSendToUser(textMessageDTO.getSenderId().toString(), "/message", messageDTO);
     }
 
     @PostMapping(value = "/send-media-message",consumes = {MediaType.MULTIPART_FORM_DATA_VALUE})
@@ -56,11 +56,11 @@ public class MessageController {
             @RequestParam("senderId") Long senderId,
             @RequestParam("memberReceiverId") Long memberReceiverId
     ) {
-        MediaMessageDTO mediaMessageDTO=new MediaMessageDTO(mediaFile,typeMessage,conversationId,senderId,memberReceiverId);
-        Long userIdReceiver = memberConversationRepository.getUserIdByIdMemberConversationId(mediaMessageDTO.getMemberReceiverId());
-        MessageDTO messageDTO = messageService.saveMediaMessage(mediaMessageDTO);
-
-        simpMessagingTemplate.convertAndSendToUser(userIdReceiver.toString(), "/message", messageDTO);
-        simpMessagingTemplate.convertAndSendToUser(mediaMessageDTO.getSenderId().toString(), "/message", messageDTO);
+//        MediaMessageDTO mediaMessageDTO=new MediaMessageDTO(mediaFile,typeMessage,conversationId,senderId,memberReceiverId);
+//        Long userIdReceiver = memberConversationRepository.getUserIdByIdMemberConversationId(mediaMessageDTO.getMemberReceiverId());
+//        MessageDTO messageDTO = messageService.saveMediaMessage(mediaMessageDTO);
+//
+//        simpMessagingTemplate.convertAndSendToUser(userIdReceiver.toString(), "/message", messageDTO);
+//        simpMessagingTemplate.convertAndSendToUser(mediaMessageDTO.getSenderId().toString(), "/message", messageDTO);
     }
 }

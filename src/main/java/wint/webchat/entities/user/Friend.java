@@ -5,27 +5,24 @@ import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
+import wint.webchat.entities.BaseEntity;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
+import java.util.UUID;
 
 @Entity
 @Getter
 @Setter
-public class Friend implements Serializable {
+public class Friend extends BaseEntity implements Serializable {
     @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private String id;
     @Column(name = "USER_ID_SENSER")
     private String userIdSender;
-    @Id
+
     @Column(name = "USER_ID_RECEIVER")
     private String userIdReceiver;
-    @Column
-    private Boolean isAccept;
-    @Column(name = "TIME_CREATE")
-    @UpdateTimestamp
-    private Timestamp timeCreate;
-    @Column(name = "IS_DELETE")
-    private Boolean isDelete;
-    @Column(name = "IS_REFUSE")
-    private Boolean isRefuse;
+    @Column(name = "STATUS")
+    private Boolean status;
 }

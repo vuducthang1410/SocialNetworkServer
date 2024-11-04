@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.CreationTimestamp;
+import wint.webchat.entities.BaseEntity;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
@@ -16,30 +17,24 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class Message implements Serializable {
+public class Message extends BaseEntity implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
+    @Column(name = "ID",length = 50)
     private String id;
-    @Column(name = "CREATE_TIME")
-    @CreationTimestamp
-    private Timestamp createTime;
-    @Column(name = "ID_MEMBER_CONVERTION_SEND")
-    private String createBy;
     @Column(name = "URL",length = 300)
     private String url;
-    @Column(name = "CONTENT",columnDefinition = "nvarchar(max)")
+    @Column(name = "CONTENT",columnDefinition = "nvarchar(2000)")
     private String content;
     @Column(name = "TIME_CALL")
     private Double timeCall;
-    @Column(name = "TYPE_TIME")
+    @Column(name = "TYPE_TIME",length = 50)
     private String typeTime;
-    @Column(name = "TYPE_MESSAGE")
+    @Column(name = "TYPE_MESSAGE",length = 50)
     private String  typeMessage;
-    @Column(name = "IS_DELETE")
-    private Boolean isDelete;
-    @Column(name = "IS_READ")
-    private Boolean isRead;
-    @Column(name = "URL_MESSAGE_MEDIA")
+    @Column(name = "IS_READ",length = 1)
+    private String isRead;
+    @Column(name = "URL_MESSAGE_MEDIA",length = 200)
     private String urlMessageMedia;
 
 }

@@ -19,13 +19,13 @@ public class MemberConversationRepository implements BaseMethod<MemberConversati
         entityManager.persist(memberConversation);
         return ResponseEntity.ok("");
     }
-    public MemberConversation getById(Long id){
+    public MemberConversation getById(String id){
       return  entityManager.find(MemberConversation.class,id);
     }
-    public MemberConversation getByUserId(Long userId,Long conversationId){
+    public MemberConversation getByUserId(String userId,String conversationId){
         String sql= """
-                select mc from MemberConversation mc inner join User u on mc.memberConversation.id=u.id
-                where u.id=:userId and mc.conversation.id=:conversationId
+                select mc from MemberConversation mc inner join User u on mc.id=u.id
+                where u.id=:userId and mc.id=:conversationId
                 """;
         Query query=entityManager.createQuery(sql,MemberConversation.class);
         query.setParameter("userId",userId);
@@ -33,19 +33,19 @@ public class MemberConversationRepository implements BaseMethod<MemberConversati
         List<MemberConversation> result=query.getResultList();
         return  result.stream().findFirst().get();
     }
-    public Long getUserIdByIdMemberConversationId(Long id){
+    public String getUserIdByIdMemberConversationId(String id){
         String sql= """
-                SELECT u.id from MemberConversation ms inner join User  u on u.id=ms.memberConversation.id
+                SELECT u.id from MemberConversation ms inner join User  u on u.id=ms.id
                 where ms.id=:id
                 """;
         Query query=entityManager.createQuery(sql,Long.class);
         query.setParameter("id",id);
-        List<Long> result=query.getResultList();
+        List<String> result=query.getResultList();
         return  result.size()==0?null:result.stream().findFirst().get();
     }
 
     @Override
-    public ResponseEntity<String> delete(int id) {
+    public ResponseEntity<String> delete(String id) {
         return null;
     }
 
@@ -55,7 +55,7 @@ public class MemberConversationRepository implements BaseMethod<MemberConversati
     }
 
     @Override
-    public List<Object[]> getList(Long id, int startGetter, int amountGet) {
+    public List<Object[]> getList(String id, int startGetter, int amountGet) {
         return null;
     }
 }

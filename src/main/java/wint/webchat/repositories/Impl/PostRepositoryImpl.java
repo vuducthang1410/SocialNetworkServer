@@ -21,7 +21,7 @@ public class PostRepositoryImpl implements IPostRepository {
     }
 
     @Override
-    public ResponseEntity<String> delete(int id) {
+    public ResponseEntity<String> delete(String id) {
         return null;
     }
 
@@ -31,14 +31,19 @@ public class PostRepositoryImpl implements IPostRepository {
     }
 
     @Override
-    public List<Object[]> getList(Long id,int startGetter,int amountGet) {
-        StoredProcedureQuery procedureQuery=entityManager.createStoredProcedureQuery("get_post_in_profile");
-        procedureQuery.registerStoredProcedureParameter("user_id", Long.class, ParameterMode.IN);
-        procedureQuery.registerStoredProcedureParameter("start_getter", Long.class,ParameterMode.IN);
-        procedureQuery.registerStoredProcedureParameter("amount_post_get", Long.class,ParameterMode.IN);
-        procedureQuery.setParameter("user_id",id);
-        procedureQuery.setParameter("start_getter",startGetter);
-        procedureQuery.setParameter("amount_post_get",amountGet);
-        return procedureQuery.getResultList();
+    public List<Object[]> getList(String id, int startGetter, int amountGet) {
+        return null;
     }
+
+//    @Override
+//    public List<Object[]> getList(Long id,int startGetter,int amountGet) {
+//        StoredProcedureQuery procedureQuery=entityManager.createStoredProcedureQuery("get_post_in_profile");
+//        procedureQuery.registerStoredProcedureParameter("user_id", Long.class, ParameterMode.IN);
+//        procedureQuery.registerStoredProcedureParameter("start_getter", Long.class,ParameterMode.IN);
+//        procedureQuery.registerStoredProcedureParameter("amount_post_get", Long.class,ParameterMode.IN);
+//        procedureQuery.setParameter("user_id",id);
+//        procedureQuery.setParameter("start_getter",startGetter);
+//        procedureQuery.setParameter("amount_post_get",amountGet);
+//        return procedureQuery.getResultList();
+//    }
 }

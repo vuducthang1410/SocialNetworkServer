@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.checkerframework.checker.units.qual.C;
+import wint.webchat.entities.BaseEntity;
 import wint.webchat.entities.group.Group;
 
 import java.io.Serializable;
@@ -13,7 +14,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @Table(name = "tbl_post_group")
-public class PostGroup implements Serializable {
+public class PostGroup extends BaseEntity implements Serializable {
     @Id
     @Column(name = "ID_POST")
     private String idPost;

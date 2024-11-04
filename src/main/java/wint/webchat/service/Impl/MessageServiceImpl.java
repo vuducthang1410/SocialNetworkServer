@@ -5,12 +5,11 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import wint.webchat.common.Constant;
 import wint.webchat.entities.conversation.Conversation;
 import wint.webchat.entities.conversation.MemberConversation;
 import wint.webchat.entities.conversation.Message;
-import wint.webchat.entities.user.User;
 import wint.webchat.google.IGoogleDriveFile;
-import wint.webchat.modelDTO.MemberId;
 import wint.webchat.modelDTO.reponse.ApiResponse;
 import wint.webchat.modelDTO.reponse.MessageDTO;
 import wint.webchat.modelDTO.request.MediaMessageDTO;
@@ -62,51 +61,51 @@ public class MessageServiceImpl implements IMessageService {
     public MessageDTO saveMessage(TextMessageDTO textMessageDTO) {
         Message message = new Message();
         message.setTypeMessage(textMessageDTO.getTypeMessage());
-        message.setIsRead(false);
-        message.setIsDelete(false);
+        message.setIsRead(Constant.STATUS.NO);
+        message.setIsDeleted(Constant.STATUS.NO);
 //        message.setTimeSend(new Timestamp(new Date().getTime()));
         message.setUrl("");
         message.setTimeCall((double) 0);
         message.setContent(textMessageDTO.getContent());
         message.setTypeTime("");
-        Conversation conversation = conversationService.getConversationById(textMessageDTO.getConversationId());
-        if (conversation == null) {
-            conversation = new Conversation();
-            conversation.setName("da");
-            conversation.setTimeCreate(new Timestamp(new Date().getTime()));
-            conversationService.add(conversation);
+//        Conversation conversation = conversationService.getConversationById(textMessageDTO.getConversationId());
+//        if (conversation == null) {
+//            conversation = new Conversation();
+//            conversation.setName("da");
+//            conversation.setCreatedTime(new Timestamp(new Date().getTime()));
+//            conversationService.add(conversation);
 //            message.setConversation(conversation);
 
 
             MemberConversation memberConversationSender = new MemberConversation();
 //            memberConversationSender.setConversation(conversation);
-            memberConversationSender.setIsDelete(false);
-            memberConversationSender.setIsCreateConversation(true);
+            memberConversationSender.setIsDeleted(Constant.STATUS.NO);
+            memberConversationSender.setIsCreateConversation(Constant.STATUS.YES);
             memberConversationSender.setTimeJoinConversation(new Timestamp(new Date().getTime()));
             memberConversationSender.setTimeJoinConversation(new Timestamp(new Date().getTime()));
-            User userCreateConversation = iUserRepositoryJPA.findUsersById(textMessageDTO.getSenderId()).get();
+//            User userCreateConversation = iUserRepositoryJPA.findUsersById(textMessageDTO.getSenderId()).get();
 //            memberConversationSender.setMemberConversation(userCreateConversation);
             memberConversationRepository.add(memberConversationSender);
 
 
             MemberConversation memberConversationReceiver = new MemberConversation();
 //            memberConversationReceiver.setConversation(conversation);
-            memberConversationReceiver.setIsDelete(false);
-            memberConversationReceiver.setIsCreateConversation(true);
+            memberConversationReceiver.setIsDeleted(Constant.STATUS.NO);
+            memberConversationReceiver.setIsCreateConversation(Constant.STATUS.YES);
             memberConversationReceiver.setTimeJoinConversation(new Timestamp(new Date().getTime()));
             memberConversationReceiver.setTimeJoinConversation(new Timestamp(new Date().getTime()));
-            User userConversationReceiver = iUserRepositoryJPA.findUsersById(textMessageDTO.getSenderId()).get();
+//            User userConversationReceiver = iUserRepositoryJPA.findUsersById(textMessageDTO.getSenderId()).get();
 //            memberConversationReceiver.setMemberConversation(userConversationReceiver);
             memberConversationRepository.add(memberConversationReceiver);
 //
 //
 //            message.setConversation(conversation);
 //            message.setMemberConversation(memberConversationSender);
-        } else {
+//        } else {
 //            MemberConversation memberConversation = memberConversationRepository.getByUserId(textMessageDTO.getSenderId(), conversation.getId());
 //            message.setConversation(conversation);
 //            message.setMemberConversation(memberConversation);
-        }
+//        }
 //        messageRepository.add(message);
         return null;
 //                .idMessage(message.getId())
@@ -126,8 +125,8 @@ public class MessageServiceImpl implements IMessageService {
         String url="https://lh3.google.com/u/0/d/"+googleDriveFile.uploadFile(mediaMessageDTO.getMediaFile(),"Root",true);
         Message message = new Message();
         message.setTypeMessage(mediaMessageDTO.getTypeMessage());
-        message.setIsRead(false);
-        message.setIsDelete(false);
+        message.setIsRead(Constant.STATUS.NO);
+        message.setIsDeleted(Constant.STATUS.NO);
 //        message.setTimeSend(new Timestamp(new Date().getTime()));
         message.setUrl(url);
         message.setTimeCall((double) 0);
@@ -137,29 +136,29 @@ public class MessageServiceImpl implements IMessageService {
         if (conversation == null) {
             conversation = new Conversation();
             conversation.setName("da");
-            conversation.setTimeCreate(new Timestamp(new Date().getTime()));
+            conversation.setCreatedTime(new Timestamp(new Date().getTime()));
             conversationService.add(conversation);
 //            message.setConversation(conversation);
 
 
             MemberConversation memberConversationSender = new MemberConversation();
 //            memberConversationSender.setConversation(conversation);
-            memberConversationSender.setIsDelete(false);
-            memberConversationSender.setIsCreateConversation(true);
+            memberConversationSender.setIsDeleted(Constant.STATUS.NO);
+            memberConversationSender.setIsCreateConversation(Constant.STATUS.YES);
             memberConversationSender.setTimeJoinConversation(new Timestamp(new Date().getTime()));
             memberConversationSender.setTimeJoinConversation(new Timestamp(new Date().getTime()));
-            User userCreateConversation = iUserRepositoryJPA.findUsersById(mediaMessageDTO.getSenderId()).get();
+//            User userCreateConversation = iUserRepositoryJPA.findUsersById(mediaMessageDTO.getSenderId()).get();
 //            memberConversationSender.setMemberConversation(userCreateConversation);
             memberConversationRepository.add(memberConversationSender);
 
 
             MemberConversation memberConversationReceiver = new MemberConversation();
 //            memberConversationReceiver.setConversation(conversation);
-            memberConversationReceiver.setIsDelete(false);
-            memberConversationReceiver.setIsCreateConversation(true);
+            memberConversationReceiver.setIsDeleted(Constant.STATUS.NO);
+            memberConversationReceiver.setIsCreateConversation(Constant.STATUS.YES);
             memberConversationReceiver.setTimeJoinConversation(new Timestamp(new Date().getTime()));
             memberConversationReceiver.setTimeJoinConversation(new Timestamp(new Date().getTime()));
-            User userConversationReceiver = iUserRepositoryJPA.findUsersById(mediaMessageDTO.getSenderId()).get();
+//            User userConversationReceiver = iUserRepositoryJPA.findUsersById(mediaMessageDTO.getSenderId()).get();
 //            memberConversationReceiver.setMemberConversation(userConversationReceiver);
             memberConversationRepository.add(memberConversationReceiver);
 

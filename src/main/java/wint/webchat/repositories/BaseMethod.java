@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface BaseMethod <T>{
     ResponseEntity<String> add(T t);
-    ResponseEntity<String> delete(int id);
+    ResponseEntity<String> delete(String id);
     ResponseEntity<String> update(T t);
-    List<Object[]> getList(Long id,int startGetter,int amountGet);
+    List<Object[]> getList(String id,int startGetter,int amountGet);
 }

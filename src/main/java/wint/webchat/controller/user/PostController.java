@@ -23,7 +23,7 @@ public class PostController {
     }
 
     @GetMapping("/get-list-post-profile")
-    public List<PostDTO> getListPostInProfile(@RequestParam(name = "id",defaultValue = "1000")Long id,
+    public List<PostDTO> getListPostInProfile(@RequestParam(name = "id",defaultValue = "1000")String id,
                                               @RequestParam(name = "startGetter",defaultValue = "1")Integer startGetter,
                                               @RequestParam(name = "amountGetter",defaultValue = "1")Integer amountGetter){
         return postService.getListPost(id,startGetter,amountGetter);
