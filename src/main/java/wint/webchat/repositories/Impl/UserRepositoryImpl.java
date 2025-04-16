@@ -47,7 +47,7 @@ public class UserRepositoryImpl implements IUserRepository {
     }
 
     @Override
-    public List<ProfileDTO> getProfile(long id) {
+    public List<ProfileDTO> getProfile(String id) {
 //        Query query = entityManager.createQuery(
 //                "select u.id ,u.fullName,u.email,u.urlAvatar,u.dateOfBirth,u.describe," +
 //                        "u.isOnline,u.urlImgCover,u.idAddress,count(f.id)as amountFriend " +

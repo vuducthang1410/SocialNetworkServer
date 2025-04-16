@@ -9,6 +9,7 @@ import java.io.Serializable;
 @Entity
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "tbl_interact")
 public class Interact implements Serializable {
     @Id
     @Column(name ="user_id_interact")

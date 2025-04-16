@@ -14,6 +14,7 @@ import java.util.Set;
 @AllArgsConstructor
 @ToString
 @Entity
+@Table(name = "tbl_role")
 public class Role implements Serializable {
     @Id
     @UuidGenerator(style = UuidGenerator.Style.RANDOM)

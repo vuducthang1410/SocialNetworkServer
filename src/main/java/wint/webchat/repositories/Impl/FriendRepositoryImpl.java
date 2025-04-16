@@ -34,24 +34,25 @@ public class FriendRepositoryImpl implements IFriendRepository {
         return ResponseEntity.ok("success");
     }
 
-    public List<Friend> getFriendById(Long userId1, Long userId2) {
+    @Override
+    public List<Object[]> getList(Long id, int startGetter, int amountGet) {
+        return List.of();
+    }
+
+    @Override
+    public List<Friend> getFriendById(String userId1, String userId2) {
 //        String sql = """
 //                select f from  Friend f where (f.userInvitationSender.id=:userId1 and f.userInvitationReceiver.id=:userId2)
 //                or (f.userInvitationSender.id=:userId2 and f.userInvitationReceiver.id=:userId1)
 //                """;
-        Query query = entityManager.createQuery("", Friend.class);
-        query.setParameter("userId1", userId1);
-        query.setParameter("userId2", userId2);
+        Query query = entityManager.createQuery("SELECT f from Friend f", Friend.class);
+//        query.setParameter("userId1", userId1);
+//        query.setParameter("userId2", userId2);
         return query.getResultList();
     }
 
     @Override
-    public List<Object[]> getList(Long id, int startGetter, int amountGet) {
-        return null;
-    }
-
-    @Override
-    public List<FriendDTO> getListFriendById(Long id, int startGet, int amountGet) {
+    public List<FriendDTO> getListFriendById(String id, int startGet, int amountGet) {
         NativeQuery<FriendDTO> nativeQuery = (NativeQuery<FriendDTO>) entityManager.createNativeQuery(
                 "select\n" +
                         "        u1_0.id,\n" +
@@ -116,7 +117,7 @@ public class FriendRepositoryImpl implements IFriendRepository {
     }
 
     @Override
-    public List<FriendDTO> getInvitationsReceivedById(Long id, int start, int amount) {
+    public List<FriendDTO> getInvitationsReceivedById(String id, int start, int amount) {
 //        String sql = "select u.id,u.urlAvatar,u.isOnline,u.fullName," +
 //                "(select count(f.isAccept) " +
 //                "from Friend f " +
@@ -129,15 +130,14 @@ public class FriendRepositoryImpl implements IFriendRepository {
 //                "from Friend f " +
 //                "where f.userInvitationReceiver.id = :userId " +
 //                "and f.isAccept=false and f.isRefuse=false and f.isDelete=false )";
-        Query query = entityManager.createQuery("", FriendDTO.class);
-        query.setParameter("userId", id);
+        Query query = entityManager.createQuery("SELECT f FROM Friend f ", FriendDTO.class);
         query.setMaxResults(amount);
         query.setFirstResult(start);
         return query.getResultList();
     }
 
     @Override
-    public List<FriendDTO> getInvitationsSentById(Long id, int start, int amount) {
+    public List<FriendDTO> getInvitationsSentById(String id, int start, int amount) {
 //        String sql =
 //                "select u.id,u.urlAvatar,u.isOnline,u.fullName," +
 //                        "(select count(*) " +
@@ -150,14 +150,14 @@ public class FriendRepositoryImpl implements IFriendRepository {
 //                        "(select f.userInvitationReceiver.id " +
 //                        "from Friend f where f.isAccept =false and f.isRefuse=false and f.isDelete=false " +
 //                        "and f.userInvitationSender.id= :userId )";
-        Query query = entityManager.createQuery("", FriendDTO.class);
-        query.setParameter("userId", id);
+        Query query = entityManager.createQuery("SELECT f FROM  Friend f", FriendDTO.class);
+//        query.setParameter("userId", id);
         query.setMaxResults(amount);
         query.setFirstResult(start);
         return query.getResultList();
     }
 
-    public List<FriendDTO> getListNoFriend(Long id, int startGet, int amountGet) {
+    public List<FriendDTO> getListNoFriend(String id, int startGet, int amountGet) {
 //        String sql = """
 //                select u.id,u.urlAvatar,u.isOnline,u.fullName,
 //                (select count(*) from Friend f where f.isAccept=false and f.isRefuse=false and f.isDelete=false
@@ -171,10 +171,10 @@ public class FriendRepositoryImpl implements IFriendRepository {
 //                from Friend f where f.isAccept =false and f.isRefuse=false and f.isDelete=false
 //                and f.userInvitationSender.id= :userId )
 //                """;
-        Query query = entityManager.createQuery("", FriendDTO.class);
-        query.setParameter("userId", id);
-        query.setParameter("amount", amountGet);
-        query.setParameter("start", startGet);
+        Query query = entityManager.createQuery("SELECT f FROM Friend f", FriendDTO.class);
+//        query.setParameter("userId", id);
+//        query.setParameter("amount", amountGet);
+//        query.setParameter("start", startGet);
         List<FriendDTO> result = query.getResultList();
         return result;
     }

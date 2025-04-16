@@ -12,9 +12,10 @@ import java.sql.Timestamp;
 @Entity
 @Getter
 @Setter
+@Table(name = "tbl_friend")
 public class Friend implements Serializable {
     @Id
-    @Column(name = "USER_ID_SENSER")
+    @Column(name = "USER_ID_SENDER")
     private String userIdSender;
     @Id
     @Column(name = "USER_ID_RECEIVER")

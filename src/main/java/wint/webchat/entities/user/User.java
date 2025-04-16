@@ -5,10 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.checkerframework.checker.units.qual.C;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
-import org.hibernate.annotations.UuidGenerator;
 import wint.webchat.common.Constant;
 
 import java.io.Serializable;
@@ -33,9 +31,9 @@ public class User implements Serializable {
     @Column(name = "Email", nullable = true, length = 50)
     private String email;
     @Basic
-    @Column(name = "FIRST_NAME", nullable = true, columnDefinition = "nvarchar(255)")
+    @Column(name = "FIRST_NAME", nullable = true)
     private String firstName;
-    @Column(name = "LAST_NAME", nullable = true, columnDefinition = "nvarchar(255)")
+    @Column(name = "LAST_NAME", nullable = true)
     private String lastName;
     @Basic
     @Column(name = "URL_AVATAR", nullable = true, length = 300)
@@ -47,7 +45,7 @@ public class User implements Serializable {
     @Column(name = "DATE_OF_BIRTH", nullable = true)
     private Date dateOfBirth;
     @Basic
-    @Column(name = "DESCRIBE", nullable = true, columnDefinition = "nvarchar(300)")
+    @Column(name = "DESCRIBE_USER", nullable = true)
     private String describe;
     @Basic
     @Column(name = "IS_DELETE", nullable = true)
@@ -67,7 +65,7 @@ public class User implements Serializable {
     @Basic
     @Column(name = "GENDER")
     private String genderValue;
-    @Column(name = "URL_IMAGE_COVER", nullable = false, length = 255)
+    @Column(name = "URL_IMAGE_COVER")
     private String urlImgCover;
     @Column(name = "IS_ACCOUNT_NON_LOCKED")
     private Boolean isAccountNonLocked;
@@ -76,7 +74,7 @@ public class User implements Serializable {
     @Column(name = "CREATE_TIME")
     @CreationTimestamp
     private String createTime;
-    @Column(name = "IS_COMPLETE", columnDefinition = "VARCHAR(5) DEFAULT 'N'")
+    @Column(name = "IS_COMPLETE")
     private String isComplete;
     @Column(name="IS_LOCK")
     private String isLock;

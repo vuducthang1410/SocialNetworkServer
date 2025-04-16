@@ -7,14 +7,13 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import wint.webchat.entities.user.Friend;
-import wint.webchat.entities.user.User;
 import wint.webchat.mapper.JsonMapper;
 import wint.webchat.modelDTO.reponse.ApiResponse;
 import wint.webchat.modelDTO.reponse.FriendDTO;
 import wint.webchat.repositories.IFriendRepository;
 import wint.webchat.repositories.IUserRepositoryJPA;
 import wint.webchat.service.IFriendService;
-import java.sql.Timestamp;
+
 import java.util.*;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -27,16 +26,16 @@ public class FriendServiceImpl implements IFriendService {
     private final JsonMapper mapper;
 
     @Override
-    public ApiResponse<List<FriendDTO>> getListFriendById(Long id, int startGet, int amount) {
+    public ApiResponse<List<FriendDTO>> getListFriendById(String id, int startGet, int amount) {
         return buildFriendApiResponse(() -> friendRepository.getListFriendById(id, startGet * amount, amount), amount);
     }
     @Override
-    public ApiResponse<List<FriendDTO>> getInvitationsReceivedById(Long id, int start, int amount) {
+    public ApiResponse<List<FriendDTO>> getInvitationsReceivedById(String id, int start, int amount) {
         return buildFriendApiResponse(() -> friendRepository.getInvitationsReceivedById(id, start * amount, amount), amount);
     }
 
     @Override
-    public ApiResponse<List<FriendDTO>> getInvitationsSentById(Long id, int start, int amount) {
+    public ApiResponse<List<FriendDTO>> getInvitationsSentById(String id, int start, int amount) {
         return buildFriendApiResponse(() -> friendRepository.getInvitationsSentById(id, start * amount, amount), amount);
     }
 
@@ -45,10 +44,10 @@ public class FriendServiceImpl implements IFriendService {
 //    sender	false	false	false
 //    refuse	false	true	false
 //    delete 	false	false	true
-    @Override
     @Modifying
     @Transactional
-    public ApiResponse<String> sendFriendInvitation(Long senderId, Long receiverId) {
+    @Override
+    public ApiResponse<String> sendFriendInvitation(String senderId, String receiverId) {
         var friendList = friendRepository.getFriendById(senderId, receiverId);
         if (!friendList.isEmpty()) {
             Friend friend = friendList.stream().findFirst().get();
@@ -140,7 +139,7 @@ public class FriendServiceImpl implements IFriendService {
     @Override
     @Transactional
     @Modifying
-    public ApiResponse<String> deleteFriendRelationship(Long userId1, Long userId2) {
+    public ApiResponse<String> deleteFriendRelationship(String userId1, String userId2) {
         var friendList = friendRepository.getFriendById(userId1, userId2);
         if (!friendList.isEmpty()) {
             Friend friend = friendList.stream().findFirst().get();
@@ -163,7 +162,7 @@ public class FriendServiceImpl implements IFriendService {
     @Override
     @Transactional
     @Modifying
-    public ApiResponse<String> deleteInvitations(Long senderId, Long receiverId) {
+    public ApiResponse<String> deleteInvitations(String senderId, String receiverId) {
         var friendList = friendRepository.getFriendById(senderId, receiverId);
         if (!friendList.isEmpty()) {
             Friend friend = friendList.stream().findFirst().get();
@@ -191,7 +190,7 @@ public class FriendServiceImpl implements IFriendService {
     @Override
     @Transactional
     @Modifying
-    public ApiResponse<String> acceptInvitationFriend(Long senderId, Long receiverId) {
+    public ApiResponse<String> acceptInvitationFriend(String senderId, String receiverId) {
         var friendList = friendRepository.getFriendById(senderId, receiverId);
         if (!friendList.isEmpty()) {
             Friend friend = friendList.stream().findFirst().get();

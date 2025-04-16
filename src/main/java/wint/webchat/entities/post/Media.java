@@ -13,11 +13,12 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@Table(name = "tbl_media")
 public class Media implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-    @Column(name = "LINK_MEDIA", columnDefinition = "nvarchar(max)")
+    @Column(name = "LINK_MEDIA")
     private String linkMedia;
     @Column(name = "TYPE_MEDIA")
     private String typeMedia;

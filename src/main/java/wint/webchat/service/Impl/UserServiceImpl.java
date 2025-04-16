@@ -49,7 +49,7 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     @Transactional(readOnly = true, isolation = Isolation.READ_COMMITTED)
-    public ApiResponse<ProfileDTO> getProfile(long id) {
+    public ApiResponse<ProfileDTO> getProfile(String id) {
         var listUser = userRepository.getProfile(id);
         if (listUser.isEmpty()) {
             return ApiResponse.<ProfileDTO>builder()

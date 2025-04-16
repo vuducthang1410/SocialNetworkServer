@@ -20,7 +20,7 @@ public class ConversationServiceImpl implements IConversationService{
     private final IConversationRepository iConversationRepository;
     @Override
     @Transactional(readOnly = true)
-    public ApiResponse<List<ConversationMessageDTO>> getListConversation(Long id, int startGetter, int amountGet) {
+    public ApiResponse<List<ConversationMessageDTO>> getListConversation(String id, int startGetter, int amountGet) {
         List<ConversationMessageDTO> result=iConversationRepository.getListConversation(id,startGetter,amountGet);
         if(result.isEmpty()){
             return ApiResponse.<List<ConversationMessageDTO>>builder()
@@ -37,7 +37,7 @@ public class ConversationServiceImpl implements IConversationService{
 
     @Override
     @Transactional(readOnly = true)
-    public Conversation getConversationById(Long id) {
+    public Conversation getConversationById(String id) {
         return iConversationRepository.getConversationById(id);
     }
 

@@ -30,26 +30,26 @@ public class FriendController {
 
     @GetMapping("/get-list-friend")
     public ApiResponse<List<FriendDTO>> getListFriendById(
-            @RequestParam int userId,
+            @RequestParam String userId,
             @RequestParam int start,
             @RequestParam int amount) {
-        return friendService.getListFriendById((long) userId, start, amount);
+        return friendService.getListFriendById( userId, start, amount);
     }
 
     @GetMapping("/get-list-invitation-receiver")
     public ApiResponse<List<FriendDTO>> getListInvitationReceiverById(
-            @RequestParam int userId,
+            @RequestParam String userId,
             @RequestParam int start,
             @RequestParam int amount) {
-        return friendService.getInvitationsReceivedById((long) userId, start, amount);
+        return friendService.getInvitationsReceivedById(userId, start, amount);
     }
 
     @GetMapping("/get-list-invitation-sender")
     public ApiResponse<List<FriendDTO>> getListInvitationSenderById(
-            @RequestParam int userId,
+            @RequestParam String userId,
             @RequestParam int start,
             @RequestParam int amount) {
-        return friendService.getInvitationsSentById((long) userId, start, amount);
+        return friendService.getInvitationsSentById(userId, start, amount);
     }
 
     @PostMapping("/delete-friend")
@@ -83,11 +83,11 @@ public class FriendController {
                 , "/accept-friend", "Lời mời kết bạn đã được chấp nhận");
     }
     public List<FriendDTO> getList(
-            @RequestParam int userId,
+            @RequestParam String userId,
             @RequestParam int start,
             @RequestParam int amount
     ){
-       return friendRepository.getListNoFriend((long)userId,start,amount);
+       return friendRepository.getListNoFriend(userId,start,amount);
     }
     @GetMapping("/search-user")
     public Object search(@RequestParam("email")String email){

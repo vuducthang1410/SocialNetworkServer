@@ -15,6 +15,7 @@ import java.sql.Timestamp;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "tbl_search")
 public class Search implements Serializable {
     @Id
     @UuidGenerator(style = UuidGenerator.Style.RANDOM)
@@ -22,7 +23,7 @@ public class Search implements Serializable {
     @Column(name = "CREATE_TIME")
     @CreationTimestamp
     private Timestamp timeSearch;
-    @Column(name = "content",columnDefinition = "nvarchar(500)")
+    @Column(name = "content")
     private String content;
 //    @ManyToOne(cascade = CascadeType.PERSIST,fetch = FetchType.LAZY)
 //    @JoinColumn(name = "SEARCH_BY")

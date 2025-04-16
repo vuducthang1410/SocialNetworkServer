@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.io.Serializable;
-import java.util.Objects;
 
 @Entity
 @Getter
@@ -12,6 +11,7 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
+@Table(name ="tbl_user_role")
 public class UserRole implements Serializable {
     @Id
     @Column(name = "ROLE_ID")

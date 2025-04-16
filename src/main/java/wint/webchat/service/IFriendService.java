@@ -1,19 +1,28 @@
 package wint.webchat.service;
 
-import org.checkerframework.checker.units.qual.A;
-import org.springframework.stereotype.Service;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.transaction.annotation.Transactional;
 import wint.webchat.modelDTO.reponse.ApiResponse;
 import wint.webchat.modelDTO.reponse.FriendDTO;
 
 import java.util.List;
 public interface IFriendService {
-    ApiResponse<List<FriendDTO>> getListFriendById(Long id, int startGet, int amountGet);
-    ApiResponse<List<FriendDTO>> getInvitationsReceivedById(Long id, int start, int amount);
-    ApiResponse<List<FriendDTO>> getInvitationsSentById(Long id, int start, int amount);
-    ApiResponse<String> sendFriendInvitation(Long senderId, Long receiverId);
-    ApiResponse<String> deleteFriendRelationship(Long userId1, Long userId2);
-    ApiResponse<String> deleteInvitations( Long senderId,Long receiverId);
+    ApiResponse<List<FriendDTO>> getListFriendById(String id, int startGet, int amountGet);
+    ApiResponse<List<FriendDTO>> getInvitationsReceivedById(String id, int start, int amount);
+    ApiResponse<List<FriendDTO>> getInvitationsSentById(String id, int start, int amount);
 
-    ApiResponse<String> acceptInvitationFriend(Long senderId, Long receiverId);
+    //          accept	refuse	delete
+//    friend	true	false	false
+//    sender	false	false	false
+//    refuse	false	true	false
+//    delete 	false	false	true
+    @Modifying
+    @Transactional
+    ApiResponse<String> sendFriendInvitation(String senderId, String receiverId);
+
+    ApiResponse<String> deleteFriendRelationship(String userId1, String userId2);
+    ApiResponse<String> deleteInvitations( String senderId,String receiverId);
+
+    ApiResponse<String> acceptInvitationFriend(String senderId, String receiverId);
 
 }

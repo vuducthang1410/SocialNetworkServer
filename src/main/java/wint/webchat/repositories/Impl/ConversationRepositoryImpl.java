@@ -35,11 +35,11 @@ public class ConversationRepositoryImpl implements IConversationRepository {
 
     @Override
     public List<Object[]> getList(Long id, int startGetter, int amountGet) {
-        return null;
+        return List.of();
     }
 
     @Override
-    public List<ConversationMessageDTO> getListConversation(Long id, int startGetter, int amountGet) {
+    public List<ConversationMessageDTO> getListConversation(String id, int startGetter, int amountGet) {
 //        String sql = """
 //                    select
 //                        u.id, u.fullName, u.isOnline, u.urlAvatar,
@@ -69,15 +69,15 @@ public class ConversationRepositoryImpl implements IConversationRepository {
 //                    )
 //                    and mc.memberConversation.id <> :userId
 //                """;
-        Query query = entityManager.createQuery("", ConversationMessageDTO.class);
-        query.setParameter("userId", id);
+        Query query = entityManager.createQuery("SELECT cv FROM Conversation  cv", ConversationMessageDTO.class);
+//        query.setParameter("userId", id);
         query.setFirstResult(startGetter);
         query.setMaxResults(amountGet);
         return query.getResultList();
     }
 
     @Override
-    public Conversation getConversationById(Long id) {
+    public Conversation getConversationById(String id) {
         return entityManager.find(Conversation.class, id);
     }
 }

@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class FriendIdDTO {
-    private Long senderId;
-    private Long receiverId;
+    private String senderId;
+    private String receiverId;
 }

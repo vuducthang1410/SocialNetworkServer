@@ -8,7 +8,7 @@ import wint.webchat.modelDTO.reponse.ConversationMessageDTO;
 import java.util.List;
 
 public interface IConversationService {
-  ApiResponse<List<ConversationMessageDTO>> getListConversation(Long id, int startGetter, int amountGet);
-Conversation getConversationById(Long id);
+  ApiResponse<List<ConversationMessageDTO>> getListConversation(String id, int startGetter, int amountGet);
+Conversation getConversationById(String id);
   ResponseEntity<String> add(Conversation conversation);
 }

@@ -52,9 +52,9 @@ public class MessageController {
     public void sendMediaMessageToUser(
             @RequestParam(value = "mediaFile",required = false) MultipartFile mediaFile,
             @RequestParam("typeMessage") String typeMessage,
-            @RequestParam("conversationId") Long conversationId,
-            @RequestParam("senderId") Long senderId,
-            @RequestParam("memberReceiverId") Long memberReceiverId
+            @RequestParam("conversationId") String conversationId,
+            @RequestParam("senderId") String senderId,
+            @RequestParam("memberReceiverId") String memberReceiverId
     ) {
         MediaMessageDTO mediaMessageDTO=new MediaMessageDTO(mediaFile,typeMessage,conversationId,senderId,memberReceiverId);
         Long userIdReceiver = memberConversationRepository.getUserIdByIdMemberConversationId(mediaMessageDTO.getMemberReceiverId());

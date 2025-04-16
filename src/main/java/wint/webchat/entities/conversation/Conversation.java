@@ -8,14 +8,13 @@ import lombok.Setter;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.List;
-import java.util.Set;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "tbl_conversation")
 public class Conversation implements Serializable {
 
     @Id

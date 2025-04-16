@@ -13,12 +13,12 @@ import java.util.List;
 @Entity
 @Getter
 @Setter
-@Table(name = "tbl_group")
+@Table(name = "tbl.group")
 public class Group implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private String id;
-    @Column(name = "NAME_GROUP",columnDefinition = "nvarchar(255)")
+    @Column(name = "NAME_GROUP")
     private String nameGroup;
     @Column(name = "CREATE_TIME")
     @CreationTimestamp

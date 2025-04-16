@@ -6,6 +6,6 @@ import wint.webchat.modelDTO.reponse.ConversationMessageDTO;
 import java.util.List;
 
 public interface IConversationRepository extends BaseMethod<Conversation> {
-List<ConversationMessageDTO> getListConversation(Long id, int startGetter, int amountGet);
-    Conversation getConversationById(Long id);
+List<ConversationMessageDTO> getListConversation(String id, int startGetter, int amountGet);
+    Conversation getConversationById(String id);
 }

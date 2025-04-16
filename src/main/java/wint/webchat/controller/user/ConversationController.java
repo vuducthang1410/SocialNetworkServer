@@ -26,7 +26,7 @@ public class ConversationController {
     private final IConversationService conversationService;
     @GetMapping("/get-list-conversation")
     public ApiResponse<List<ConversationMessageDTO>> getListConversation(
-            @RequestParam int userId,
+            @RequestParam String userId,
             @RequestParam int start,
             @RequestParam int amount){
         if(start<0 || amount<1){
@@ -35,7 +35,7 @@ public class ConversationController {
                     .error(Map.of("request param","start and amount require >=0 "))
                     .build();
         }
-        return conversationService.getListConversation((long)userId,start,amount);
+        return conversationService.getListConversation(userId,start,amount);
 
     };
     @MessageMapping("/send-file-message")

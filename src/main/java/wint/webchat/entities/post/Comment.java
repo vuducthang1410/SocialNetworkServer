@@ -1,6 +1,8 @@
 package wint.webchat.entities.post;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 import wint.webchat.entities.user.User;
 
@@ -9,6 +11,9 @@ import java.sql.Timestamp;
 import java.util.List;
 
 @Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Table(name = "tbl_comment")
 public class Comment implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -16,7 +21,7 @@ public class Comment implements Serializable {
     @Column(name = "CREATE_TIME")
     @CreationTimestamp
     private Timestamp createTime;
-    @Column(columnDefinition = "nvarchar(max)" )
+    @Column()
     private String content;
     @Column(name = "IS_DELETE")
     private Boolean isDelete;

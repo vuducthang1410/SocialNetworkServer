@@ -12,6 +12,7 @@ import java.util.UUID;
 @Entity
 @Getter
 @Setter
+@Table(name = "tbl_story")
 public class Story implements Serializable {
     @Id
     @Column(name = "ID")

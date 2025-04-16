@@ -14,6 +14,6 @@ import java.util.Date;
 public interface IUserService {
     ResponseEntity<String> add(AuthSignUpDTO authSignUpDTO);
 
-    ApiResponse<ProfileDTO> getProfile(long id);
+    ApiResponse<ProfileDTO> getProfile(String id);
     ApiResponse<String> updateProfile(MultipartFile avatar, String userDataRequest);
 }

@@ -8,7 +8,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class MediaMessageDTO {
     private MultipartFile mediaFile;
     private String typeMessage;
-    private Long conversationId;
-    private Long senderId;
-    private Long memberReceiverId;
+    private String conversationId;
+    private String senderId;
+    private String memberReceiverId;
 }

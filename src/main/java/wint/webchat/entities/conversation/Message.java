@@ -9,13 +9,13 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.util.List;
 
 @Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "tbl_message")
 public class Message implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -23,11 +23,11 @@ public class Message implements Serializable {
     @Column(name = "CREATE_TIME")
     @CreationTimestamp
     private Timestamp createTime;
-    @Column(name = "ID_MEMBER_CONVERTION_SEND")
+    @Column
     private String createBy;
     @Column(name = "URL",length = 300)
     private String url;
-    @Column(name = "CONTENT",columnDefinition = "nvarchar(max)")
+    @Column(name = "CONTENT")
     private String content;
     @Column(name = "TIME_CALL")
     private Double timeCall;

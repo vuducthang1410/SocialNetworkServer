@@ -16,6 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 @Setter
 @NoArgsConstructor
+@Table(name = "tbl_post")
 public class Post implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -28,7 +29,7 @@ public class Post implements Serializable {
     @Column(name = "IS_DELETE", nullable = true)
     private Boolean isDelete;
     @Basic
-    @Column(name = "CAPTION", nullable = true, length = 2147483647,columnDefinition = "nvarchar")
+    @Column(name = "CAPTION")
     private String caption;
     @Basic
     @Column(name = "TIME_CREATE", nullable = true)
